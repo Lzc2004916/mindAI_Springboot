@@ -1,0 +1,16 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+!**/src/main/**
+!**/src/test/**
+*.class
+*.jar
+*.war
+
+# IDE & local tooling
+.idea/
+.workbuddy/
+*.log
+hs_err_pid*.log
+temp_fix_sql.py
