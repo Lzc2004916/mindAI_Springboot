@@ -15,7 +15,7 @@ public class GlobarExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result<String> handlerException(MethodArgumentNotValidException e) {
         String msg = e.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
+                .map(FieldError :: getDefaultMessage)
                 .collect(Collectors.joining(","));
         return Result.error(ResultCode.PARAM_ERROR.getCode(),ResultCode.PARAM_ERROR.getMessage(),msg);
     }
