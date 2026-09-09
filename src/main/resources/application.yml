@@ -8,3 +8,9 @@ spring:
     url: jdbc:mysql://localhost:3306/mental_health_assistant?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: root
+jwt:
+  secret: MySecretKeyForJWT2026!@#$%^&*()_+SecureKeyHere
+  expiration: 86400000  # 24小时（毫秒）
+  refresh-expiration: 604800000  # 7天（毫秒）
+  header: Authorization  # token头部名称
+  token-prefix: "Bearer "  # token前缀
