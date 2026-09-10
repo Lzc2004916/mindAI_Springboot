@@ -3,12 +3,12 @@ package com.lzc.mindaispringboot.util;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.lzc.mindaispringboot.config.JwtConfig;
-import com.lzc.mindaispringboot.exception.BusionessException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
-
+@Component
 public class JwtTokenUtil implements ApplicationContextAware {
     private static ApplicationContext applicationContext;
     @Override
@@ -19,7 +19,7 @@ public class JwtTokenUtil implements ApplicationContextAware {
         return JwtTokenUtil.applicationContext.getBean(JwtConfig.class);
     }
     //生成token方法
-    public static String generateToken(String userId,String username,Integer roleType ) {
+    public static String generateToken(Long userId,String username,Integer roleType ) {
         try {
             JwtConfig jwtConfig = getJwtConfig();
             //生成签名算法

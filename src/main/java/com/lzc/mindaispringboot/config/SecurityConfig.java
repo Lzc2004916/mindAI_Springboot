@@ -16,7 +16,8 @@ public class SecurityConfig {
     private static final String[] PUBLIC_MATCHERS = {
             "/",
             "/api/test",
-            "/api/user/login"
+            "/api/user/login",
+            "/api/user/add",
     };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity)throws Exception{

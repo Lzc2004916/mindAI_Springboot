@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.lzc.mindaispringboot.enumClass.UserStatus;
+import com.lzc.mindaispringboot.enumClass.UserType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -73,10 +74,30 @@ public class User {
         // 创建时间
         @TableField("created_at")
         private LocalDateTime createdAt;
-
+        // 更新时间
         @TableField("updated_at")
         private LocalDateTime updatedAt;
         public boolean isActive() {
             return UserStatus.NORMAL.getCode().equals(this.status);
+        }
+        public boolean isUser() {
+            return UserType.USER.getCode().equals(this.userType);
+        }
+        public String getUserTypeDisplayName(){
+            try {
+                return UserType.fromCode(userType).getDescription();
+            }catch (Exception e){
+                return "未知";
+            }
+        }
+        public String getStatusDisplayName(){
+            try {
+                return UserStatus.fromCode(status).getDescription();
+            }catch (Exception e){
+                return "未知";
+            }
+        }
+        public String getDisplayName(){
+            return nickname != null && !nickname.trim().isEmpty() ? nickname : username;
         }
 }
