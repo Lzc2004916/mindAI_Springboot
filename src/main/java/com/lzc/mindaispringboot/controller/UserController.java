@@ -7,14 +7,12 @@ import com.lzc.mindaispringboot.response.UserLoginResponseDTO;
 import com.lzc.mindaispringboot.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+    //登录
     @Resource
     private UserService userService;
     @PostMapping("/login")
@@ -22,9 +20,15 @@ public class UserController {
         UserLoginResponseDTO result = userService.login(userLoginCommandDTO);
         return Result.success(result);
     }
+    //添加账号
     @PostMapping("/add")
     public Result<UserLoginResponseDTO.UserDetailResponseDTO> register(@Valid @RequestBody UserRegisterCommandDTO userRegisterCommandDTO){
         UserLoginResponseDTO.UserDetailResponseDTO result = userService.register(userRegisterCommandDTO);
         return Result.success(result);
+    }
+    //获取账号信息
+    @GetMapping("/current")
+    public Result<UserLoginResponseDTO.UserDetailResponseDTO> getCurrentUser(){
+        return null;
     }
 }
