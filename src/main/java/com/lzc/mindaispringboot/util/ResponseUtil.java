@@ -27,12 +27,10 @@ public class ResponseUtil {
             // 其他异常一律返回 400
             default -> HttpStatus.BAD_REQUEST.value();
         };
-
         // 2. 设置响应头
         response.setStatus(status);                                         // HTTP 状态码
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);          // Content-Type: application/json
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());       // 编码: UTF-8
-
         // 3. 写入 JSON 错误信息到响应体
         try(PrintWriter writer = response.getWriter()) {                    // try-with-resources 自动关闭流
             String jsonStr = JSONUtil.toJsonStr(Result.error(resultCode.getCode(), resultCode.getMessage(), null));

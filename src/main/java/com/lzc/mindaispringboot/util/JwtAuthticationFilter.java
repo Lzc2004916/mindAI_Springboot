@@ -22,7 +22,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 
 public class JwtAuthticationFilter extends OncePerRequestFilter {
     @Resource
@@ -37,50 +36,39 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = JwtTokenUtil.extractTokenFromRequest(request);
-        if (StringUtils.hasText(token)){
-            // 验证 token：验签失败会抛异常，claims 不全返回 null
-            try {
-                JwtTokenUtil.TokenVerificationResult validationResult = JwtTokenUtil.validateToken(token);
-                if (validationResult != null && validationResult.isToken()) {
-                    UserLoginResponseDTO.UserDetailResponseDTO user = userService.getUserById(validationResult.getUserId());
-                    if (user != null && UserStatus.NORMAL.getCode().equals(user.getStatus())) {
-                        //创建Spring Security认证对象
-                        List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                                new SimpleGrantedAuthority("ROLE_" + validationResult.getRoleType())
-                        );
-                        //创建UsernamePasswordAuthenticationToken
-                        UsernamePasswordAuthenticationToken authcation = new UsernamePasswordAuthenticationToken(
-                                validationResult.getUsername(),
-                                null,
-                                authorities
-                        );
-                        //设置认证信息到spring securtity上下文
-                        SecurityContextHolder.getContext().setAuthentication(authcation);
-                        //将token存储到请求属性中
-//                        request.setAttribute("jwtToken", token);
-                    }else {
-                        clearSecurityContext();
-                        ResponseUtil.writeResponse(response,ResultCode.TOKEN_ACCESS_FORBIDDEN);
-                    }
-                } else {
-                    // claims 残缺，token 无效
-                    clearSecurityContext();
-                    ResponseUtil.writeResponse(response, ResultCode.TOKEN_INVALID);
-                    return;
-                }
-            } catch (Exception e) {
-                // 验签失败（签名不对 / 过期 / issuer 不匹配）
-                clearSecurityContext();
-                ResponseUtil.writeResponse(response, ResultCode.TOKEN_INVALID);
-                return;
-            }
-        }else {
-            //token异常处理
+
+        // 1. 无 token，拒绝
+        if (!StringUtils.hasText(token)) {
             clearSecurityContext();
             ResponseUtil.writeResponse(response, ResultCode.ACCESS_UNAUTHORIZED);
             return;
         }
-        filterChain.doFilter(request,response);
+
+        // 2. 验证 token
+        JwtTokenUtil.TokenVerificationResult TokenResult = JwtTokenUtil.validateToken(token);
+        // 3. claims 残缺，拒绝
+        if (TokenResult == null || !TokenResult.isToken()) {
+            clearSecurityContext();
+            ResponseUtil.writeResponse(response, ResultCode.TOKEN_INVALID);
+            return;
+        }
+        // 4. 查用户，状态异常则拒绝
+        UserLoginResponseDTO.UserDetailResponseDTO user = userService.getUserById(TokenResult.getUserId());
+        if (user == null || !UserStatus.NORMAL.getCode().equals(user.getStatus())) {
+            clearSecurityContext();
+            ResponseUtil.writeResponse(response, ResultCode.TOKEN_ACCESS_FORBIDDEN);
+            return;
+        }
+
+        // 5. 认证通过，设置 Spring Security 上下文
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                TokenResult.getUsername(),
+                null,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + TokenResult.getRoleType()))
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        filterChain.doFilter(request, response);
     }
     //清理spring security上下文
     private void clearSecurityContext(){

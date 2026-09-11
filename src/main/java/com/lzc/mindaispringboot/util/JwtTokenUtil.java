@@ -89,29 +89,22 @@ public class JwtTokenUtil implements ApplicationContextAware {
 //    }
     //验证token
     public static TokenVerificationResult validateToken(String token){
-        // 1. 先验签（签名 + issuer + 过期时间），拿到解码后的 JWT
-        DecodedJWT jwt = verifyToken(token);
-        if (jwt == null) return null;
-        // 2. 从 claims 中提取用户信息
-        Long userId = jwt.getClaim("userId").asLong();
-        String username = jwt.getClaim("username").asString();
-
-        // 3. roleType 可能是 Integer 也可能是 String，做兼容处理
-        Integer roleType = null;
         try {
-            roleType = jwt.getClaim("roleType").asInt();         // 优先按 Integer 读取
-        } catch (Exception e) {
-            String roleTypeStr = jwt.getClaim("roleType").asString(); // 失败则按 String 读取再转
-            if (StringUtils.hasText(roleTypeStr)) {
-                roleType = Integer.valueOf(roleTypeStr);
+            // 1. 先验签（签名 + issuer + 过期时间），拿到解码后的 JWT
+            DecodedJWT jwt = verifyToken(token);
+            if (jwt == null) return null;
+            // 2. 从 claims 中提取用户信息
+            Long userId = jwt.getClaim("userId").asLong();
+            String username = jwt.getClaim("username").asString();
+            Integer roleType = jwt.getClaim("roleType").asInt();
+            // 4. 三个字段都有效才返回结果，否则返回 null
+            if (userId != null && StringUtils.hasText(username) && roleType != null) {
+                return new TokenVerificationResult(userId, username, roleType, true);
             }
+            return null;
+        }catch (Exception e){
+            return null;
         }
-
-        // 4. 三个字段都有效才返回结果，否则返回 null
-        if (userId != null && StringUtils.hasText(username) && roleType != null) {
-            return new TokenVerificationResult(userId, username, roleType, true);
-        }
-        return null;
     }
     // 底层验签：校验 token 的签名、签发者、过期时间
     public static DecodedJWT verifyToken(String token){
