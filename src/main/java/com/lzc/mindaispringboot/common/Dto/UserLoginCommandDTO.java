@@ -1,4 +1,4 @@
-package com.lzc.mindaispringboot.Dto;
+package com.lzc.mindaispringboot.common.Dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

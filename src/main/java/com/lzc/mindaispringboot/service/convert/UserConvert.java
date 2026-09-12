@@ -1,6 +1,6 @@
 package com.lzc.mindaispringboot.service.convert;
 
-import com.lzc.mindaispringboot.Dto.UserRegisterCommandDTO;
+import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.entity.User;
 import com.lzc.mindaispringboot.enumClass.UserStatus;
 import com.lzc.mindaispringboot.response.UserLoginResponseDTO;

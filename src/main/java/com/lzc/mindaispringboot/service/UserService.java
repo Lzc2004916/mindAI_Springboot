@@ -2,8 +2,8 @@ package com.lzc.mindaispringboot.service;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lzc.mindaispringboot.Dto.UserLoginCommandDTO;
-import com.lzc.mindaispringboot.Dto.UserRegisterCommandDTO;
+import com.lzc.mindaispringboot.common.Dto.UserLoginCommandDTO;
+import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.entity.User;
 import com.lzc.mindaispringboot.enumClass.UserType;
 import com.lzc.mindaispringboot.exception.BusionessException;

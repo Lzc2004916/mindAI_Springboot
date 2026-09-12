@@ -1,8 +1,8 @@
 package com.lzc.mindaispringboot.controller;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.lzc.mindaispringboot.Dto.UserLoginCommandDTO;
-import com.lzc.mindaispringboot.Dto.UserRegisterCommandDTO;
+import com.lzc.mindaispringboot.common.Dto.UserLoginCommandDTO;
+import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.response.UserLoginResponseDTO;
 import com.lzc.mindaispringboot.service.UserService;
@@ -10,7 +10,6 @@ import com.lzc.mindaispringboot.util.JwtTokenUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
