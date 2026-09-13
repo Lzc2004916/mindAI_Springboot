@@ -4,6 +4,8 @@ import cn.hutool.json.JSONUtil;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lzc.mindaispringboot.AiService.PsychologicalSupportService;
 import com.lzc.mindaispringboot.AiService.StructOutPut;
+import com.lzc.mindaispringboot.Aop.GetToken;
+import com.lzc.mindaispringboot.Aop.Token_Aspect;
 import com.lzc.mindaispringboot.common.ConsultaionStreamDTO;
 import com.lzc.mindaispringboot.common.Dto.ConsultationSessionCreateDto;
 import com.lzc.mindaispringboot.common.Result;
@@ -26,21 +28,19 @@ import reactor.core.publisher.Flux;
 public class PsychologicalChatController {
     @Resource
     private PsychologicalSupportService psychologicalSupportService;
+    @GetToken
     @PostMapping("/session/start")
     public Result<StructOutPut.StreamChatSession> startSession(@Valid @RequestBody ConsultationSessionCreateDto consultationSessionCreateDto, HttpServletRequest request){
         //获取当前用户
-        String token = JwtTokenUtil.extractTokenFromRequest(request);
-        DecodedJWT jwt = JwtTokenUtil.verifyToken(token);
-        Long userId = jwt.getClaim("userId").asLong();
+        Long userId = Token_Aspect.getUserId();
         StructOutPut.StreamChatSession startSession = psychologicalSupportService.startSession(userId, consultationSessionCreateDto);
         return Result.success(startSession);
     }
+    @GetToken
     @PostMapping(value = "/stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> streamChat(@Valid @RequestBody ConsultaionStreamDTO consultaionStreamDTO, HttpServletRequest request){
         //获取当前用户
-        String token = JwtTokenUtil.extractTokenFromRequest(request);
-        DecodedJWT jwt = JwtTokenUtil.verifyToken(token);
-        Long userId = jwt.getClaim("userId").asLong();
+        Long userId = Token_Aspect.getUserId();
         if (userId == null || StringUtils.hasText(userId.toString())) {
             return Flux.just(ServerSentEvent.<String>builder()
                     .event("error")
@@ -50,6 +50,7 @@ public class PsychologicalChatController {
                     .build()
             );
         }
+        //开始流式对话
         return null;
     }
 }

@@ -1,7 +1,11 @@
 package com.lzc.mindaispringboot.service;
 
+import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzc.mindaispringboot.entity.ConsultationMessage;
 import com.lzc.mindaispringboot.mappper.ConsultionMessageMapper;
+import com.lzc.mindaispringboot.response.ConsultationMessageResponseDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -23,5 +27,39 @@ public class ConsultationMessageService {
         consultionMessageMapper.insert(userMessage);
         return userMessage;
     }
+    public Integer getMessageCount(Long sessionId){
+        LambdaQueryWrapper<ConsultationMessage> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ConsultationMessage :: getSessionId,sessionId);
+        return consultionMessageMapper.selectCount(queryWrapper).intValue();
+    }
+    /// 获取会话中最新的消息数据
+    public ConsultationMessageResponseDTO getLastMessageBySessionId(Long sessionId){
+        // 构建查询条件：按 sessionId 匹配，按创建时间倒序，取最新一条
+        LambdaQueryWrapper<ConsultationMessage> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ConsultationMessage::getSessionId, sessionId)
+                .orderByDesc(ConsultationMessage::getCreatedAt)
+                .last("limit 1");
+        // 执行查询，获取最新的消息记录
+        ConsultationMessage lastMessage = consultionMessageMapper.selectOne(queryWrapper);
+        // 将实体转换为响应 DTO 后返回
+        return lastMessage != null ? convertToResponseDTO(lastMessage) : null;
+    }
 
+    public ConsultationMessageResponseDTO convertToResponseDTO(ConsultationMessage message) {
+        if (message == null) return null;
+        ConsultationMessageResponseDTO dto = ConsultationMessageResponseDTO.builder()
+                .id(message.getId())
+                .sessionId(message.getSessionId())
+                .senderType(message.getSenderType())
+                .senderTypeDesc(message.getSenderTypeDesc())
+                .messageType(message.getMessageType())
+                .messageTypeDesc(message.getMessageTypeDesc())
+                .content(message.getContent())
+                .emotionTag(message.getEmotionTag())
+                .aiModel(message.getAiModel())
+                .createdAt(message.getCreatedAt())
+                .build();
+        dto.calculateContentLength();
+        return dto;
+    }
 }

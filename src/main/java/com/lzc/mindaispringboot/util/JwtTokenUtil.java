@@ -120,6 +120,4 @@ public class JwtTokenUtil implements ApplicationContextAware {
         // 执行验证，通过则返回 DecodedJWT，失败则抛异常
         return verifier.verify(token);
     }
-
-
 }

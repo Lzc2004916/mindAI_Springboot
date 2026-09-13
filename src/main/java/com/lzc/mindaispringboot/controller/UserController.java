@@ -1,6 +1,8 @@
 package com.lzc.mindaispringboot.controller;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.lzc.mindaispringboot.Aop.GetToken;
+import com.lzc.mindaispringboot.Aop.Token_Aspect;
 import com.lzc.mindaispringboot.common.Dto.UserLoginCommandDTO;
 import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.common.Result;
@@ -10,6 +12,7 @@ import com.lzc.mindaispringboot.util.JwtTokenUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.antlr.runtime.Token;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,11 +33,10 @@ public class UserController {
         return Result.success(result);
     }
     //获取账号信息
+    @GetToken
     @GetMapping("/current")
-    public Result<UserLoginResponseDTO.UserDetailResponseDTO> getCurrentUser(HttpServletRequest request){
-        String token = JwtTokenUtil.extractTokenFromRequest(request);
-        DecodedJWT jwt = JwtTokenUtil.verifyToken(token);
-        Long userId = jwt.getClaim("userId").asLong();
+    public Result<UserLoginResponseDTO.UserDetailResponseDTO> getCurrentUser(){
+        Long userId = Token_Aspect.getUserId();
         UserLoginResponseDTO.UserDetailResponseDTO result = userService.getUserById(userId);
         return Result.success(result);
     }
