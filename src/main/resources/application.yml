@@ -8,6 +8,16 @@ spring:
     url: jdbc:mysql://localhost:3306/mental_health_assistant?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: root
+  ai:
+    openai:
+      chat:
+        options:
+          model: deepseek-ai/DeepSeek-V3.2
+          tool-calling:
+            enabled: true
+        completions-path: /v1/chat/completions
+      api-key: sk-xxtuidmbrtvakwrgkolamqqeppfgkmehnmiokrhwuglqcpwo
+      base-url: https://api.siliconflow.cn
 jwt:
   secret: MySecretKeyForJWT2026!@#$%^&*()_+SecureKeyHere
   expiration: 86400000  # 24小时（毫秒）

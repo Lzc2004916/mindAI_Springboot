@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class ConsultationMessageService {
     @Resource
     public ConsultionMessageMapper consultionMessageMapper;
+    //保存的是用户的消息
     public ConsultationMessage saveUserMessage(Long sessionId,String content ,String emotion_tag) {
         ConsultationMessage userMessage = ConsultationMessage.builder()
                 .sessionId(sessionId)
@@ -27,6 +28,19 @@ public class ConsultationMessageService {
         consultionMessageMapper.insert(userMessage);
         return userMessage;
     }
+    public ConsultationMessage saveAiMessage(Long sessionId,String content , String ai_model) {
+        ConsultationMessage AiMessage = ConsultationMessage.builder()
+                .sessionId(sessionId)
+                .senderType(2)
+                .messageType(1)
+                .content(content)
+                .aiModel(ai_model)
+                .createdAt(LocalDateTime.now())
+                .build();
+        consultionMessageMapper.insert(AiMessage);
+        return AiMessage;
+    }
+    //保存Ai消息
     public Integer getMessageCount(Long sessionId){
         LambdaQueryWrapper<ConsultationMessage> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ConsultationMessage :: getSessionId,sessionId);
