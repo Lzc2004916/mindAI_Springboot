@@ -9,18 +9,24 @@ import com.lzc.mindaispringboot.common.Dto.KnowledgeArticleStatusDTO;
 import com.lzc.mindaispringboot.common.Dto.KnowledgeArticleUpdateDTO;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.entity.KnowledgeArticle;
+import com.lzc.mindaispringboot.entity.KnowledgeCategory;
 import com.lzc.mindaispringboot.service.KnowledgeArticleService;
+import com.lzc.mindaispringboot.service.KnowledgeCategoryService;
 import com.lzc.mindaispringboot.util.AuthUtil;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/knowledge")
 public class KnowledgeController {
     @Resource
     private KnowledgeArticleService knowledgeArticleService;
+    @Resource
+    private KnowledgeCategoryService categoryService;
+
     @GetToken
     @GetMapping("/article/page")
     public Result<Page<KnowledgeArticle>> articlePage(KnowledgeArticlePageQuery query) {
@@ -68,5 +74,11 @@ public class KnowledgeController {
     public Result deleteArticle(@PathVariable String id){
         knowledgeArticleService.delete(id);
         return Result.success();
+    }
+    /** 分类平铺列表（仅启用状态），前端用于分类筛选 / 下拉 */
+    @GetToken
+    @GetMapping("/categories")
+    public Result<List<KnowledgeCategory>> categories() {
+        return Result.success(categoryService.getEnabledCategories());
     }
 }

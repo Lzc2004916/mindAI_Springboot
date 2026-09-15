@@ -1,7 +1,4 @@
 package com.lzc.mindaispringboot.service;
-
-import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzc.mindaispringboot.entity.ConsultationMessage;
 import com.lzc.mindaispringboot.mappper.ConsultionMessageMapper;
@@ -10,6 +7,8 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ConsultationMessageService {
@@ -58,7 +57,24 @@ public class ConsultationMessageService {
         // 将实体转换为响应 DTO 后返回
         return lastMessage != null ? convertToResponseDTO(lastMessage) : null;
     }
-
+    //按时间升序返回会话全部消息
+    public List<ConsultationMessageResponseDTO> listBySession(Long sessionId){
+        LambdaQueryWrapper<ConsultationMessage> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ConsultationMessage :: getSessionId,sessionId)
+                .orderByAsc(ConsultationMessage::getCreatedAt);
+        List<ConsultationMessage> consultationMessages = consultionMessageMapper.selectList(queryWrapper);
+        ArrayList<ConsultationMessageResponseDTO> result = new ArrayList<>();
+        for (ConsultationMessage message : consultationMessages) {
+            result.add(convertToResponseDTO(message));
+        }
+        return result;
+    }
+    //删除会话全部消息
+    public void deleteBySessionId(Long sessionId){
+        LambdaQueryWrapper<ConsultationMessage> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ConsultationMessage::getSessionId, sessionId);
+        consultionMessageMapper.delete(queryWrapper);
+    }
     public ConsultationMessageResponseDTO convertToResponseDTO(ConsultationMessage message) {
         if (message == null) return null;
         ConsultationMessageResponseDTO dto = ConsultationMessageResponseDTO.builder()
