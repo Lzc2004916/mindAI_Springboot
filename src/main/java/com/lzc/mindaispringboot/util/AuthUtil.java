@@ -6,7 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class AuthUtil {
     public static boolean isAdmin(){
-        //当前请求是否管理员
+        //当前请求是否管理员,用户为true，管理为false
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return false;
          for (GrantedAuthority a : auth.getAuthorities()) {
