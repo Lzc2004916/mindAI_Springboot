@@ -114,7 +114,7 @@ public class PsychologicalSupportService {
         if (dbsession == null) throw new BusionessException("会话Id格式错误");
         ConsultationSession session = consultationSessionService.getById(dbsession);
         if (session == null) throw new BusionessException("会话不存在");
-        if (!isAdmin && session.getUserId().equals(userId)){
+        if (!isAdmin && !session.getUserId().equals(userId)){
             throw new BusionessException("无权访问该会话");
         }
         if (session.getLastEmotionAnalysis() != null
