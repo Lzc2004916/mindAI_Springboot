@@ -66,4 +66,8 @@ public class ConsultationSessionService {
         //再删会话
         consultationSessionMapper.deleteById(sessionId);
     }
+
+    public void updateById(ConsultationSession session) {
+        consultationSessionMapper.updateById(session);
+    }
 }

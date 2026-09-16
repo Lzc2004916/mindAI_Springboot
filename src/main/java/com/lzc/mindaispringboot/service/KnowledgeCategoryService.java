@@ -15,7 +15,6 @@ public class KnowledgeCategoryService {
 
     /**
      * 返回所有"启用"的分类（平铺列表，按 sortOrder 升序）。
-     * 不做树形嵌套，前端如需多级菜单可自行按 parentId 组装。
      */
     public List<KnowledgeCategory> getEnabledCategories() {
         LambdaQueryWrapper<KnowledgeCategory> queryWrapper = new LambdaQueryWrapper<>();
