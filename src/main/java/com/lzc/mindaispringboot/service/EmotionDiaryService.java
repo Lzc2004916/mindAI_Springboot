@@ -35,6 +35,7 @@ public class EmotionDiaryService {
                     .createdAt(now)
                     .updatedAt(now)
                     .build();
+            emotionDiaryMapper.insert(emotionDiary);
         }else {
             emotionDiary.setMoodScore(emotionDiarySaveDTO.getMoodScore());
             emotionDiary.setDominantEmotion(emotionDiarySaveDTO.getDominantEmotion());
@@ -50,9 +51,9 @@ public class EmotionDiaryService {
     /** 管理端：分页查询情绪日志 */
     public Page<EmotionDiary> adminPage(EmotionDiaryAdminPageQuery query){
         LambdaQueryWrapper<EmotionDiary> qw = new LambdaQueryWrapper<>();
-        if (query.getPageSize() != null) qw.eq(EmotionDiary :: getUserId,query.getUserId());
-        if (query.getStartDate() != null) qw.eq(EmotionDiary :: getDiaryDate,query.getStartDate());
-        if (query.getEndDate() != null) qw.eq(EmotionDiary :: getDiaryDate, query.getEndDate());
+        if (query.getUserId() != null) qw.eq(EmotionDiary :: getUserId,query.getUserId());
+        if (query.getStartDate() != null) qw.ge(EmotionDiary :: getDiaryDate, query.getStartDate());
+        if (query.getEndDate() != null) qw.le(EmotionDiary :: getDiaryDate, query.getEndDate());
         return emotionDiaryMapper.selectPage(new Page<>(query.getPageNum(),query.getPageSize()),qw);
     }
     /** 管理端：删除情绪日志 */
