@@ -10,6 +10,7 @@ import com.lzc.mindaispringboot.common.Dto.KnowledgeArticleUpdateDTO;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.entity.KnowledgeArticle;
 import com.lzc.mindaispringboot.entity.KnowledgeCategory;
+import com.lzc.mindaispringboot.response.CategoryTreeVO;
 import com.lzc.mindaispringboot.service.KnowledgeArticleService;
 import com.lzc.mindaispringboot.service.KnowledgeCategoryService;
 import com.lzc.mindaispringboot.util.AuthUtil;
@@ -80,5 +81,10 @@ public class KnowledgeController {
     @GetMapping("/categories")
     public Result<List<KnowledgeCategory>> categories() {
         return Result.success(categoryService.getEnabledCategories());
+    }
+    @GetToken
+    @GetMapping("/category/tree")
+    public Result<List<CategoryTreeVO>> categoryTree(){
+        return Result.success(categoryService.getCategoryTree());
     }
 }
