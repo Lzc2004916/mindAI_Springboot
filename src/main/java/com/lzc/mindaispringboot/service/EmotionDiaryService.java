@@ -25,7 +25,7 @@ public class EmotionDiaryService {
         if (emotionDiary == null){
             emotionDiary = EmotionDiary.builder()
                     .userId(userId)
-                    .diaryContent(emotionDiary.getDiaryContent())
+                    .diaryDate(emotionDiarySaveDTO.getDiaryDate())
                     .moodScore(emotionDiarySaveDTO.getMoodScore())
                     .dominantEmotion(emotionDiarySaveDTO.getDominantEmotion())
                     .emotionTriggers(emotionDiarySaveDTO.getEmotionTriggers())
