@@ -56,8 +56,8 @@ public class FileService {
             throw new BusionessException("不支持文件类型："+ ext);
         }
         try {
-            ///生成存储路径：根目录 / 年 / 月 / 日 / UUID.ext
-            String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            ///生成存储路径：根目录 / 年-月 / UUID.ext
+            String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
             ///拼接文件名
             String relative = datePath + "/" + UUID.randomUUID() + "." + ext;
             /// 拼接定义好的系统路径+文件名
