@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 public class FileUploadVO {
     private Long id;
     private String originalName;
+    private String filePath;
     private Long fileSize;
     private String fileType;
     private String businessType;
+
 }

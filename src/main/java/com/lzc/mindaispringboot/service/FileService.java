@@ -71,23 +71,25 @@ public class FileService {
             //入库
             SysFileInfo info = SysFileInfo.builder()
                     .originalName(originalName)
-                    .filePath("/files" + relative)
+                    .filePath("/files/" + relative)
                     .fileSize(file.getSize())
                     .fileType(resolveFileType(ext))
                     .businessType(businessType)
-                    .businessField(businessId)
+                    .businessField(businessField)
                     .uploadUserId(userId)
+                    .businessId(businessId)
                     //如果isTemp是1代表临时文件
                     .isTemp(Boolean.TRUE.equals(isTemp) ? 1 : 0)
                     .status(1)
                     .createTime(LocalDateTime.now())
                     //如果是临时文件给24小时有效期，方便后续定时清理
-                    .expireTime(Boolean.TRUE.equals(isTemp) ? LocalDateTime.now().plusDays(24) : null)
+                    .expireTime(Boolean.TRUE.equals(isTemp) ? LocalDateTime.now().plusHours(24) : null)
                     .build();
             sysFileInfoMapper.insert(info);
             return FileUploadVO.builder()
                     .id(info.getId())
                     .originalName(info.getOriginalName())
+                    .filePath(info.getFilePath())
                     .businessType(info.getBusinessType())
                     .fileSize(info.getFileSize())
                     .fileType(info.getFileType())
@@ -108,7 +110,7 @@ public class FileService {
         };
     }
     private String getExt(String fileName){
-        if (StrUtil.isNotBlank(fileName)) return "";
+        if (StrUtil.isBlank(fileName)) return "";
         int idx = fileName.lastIndexOf(".");
         return idx < 0 ? "" : fileName.substring(idx + 1).toLowerCase();
     }

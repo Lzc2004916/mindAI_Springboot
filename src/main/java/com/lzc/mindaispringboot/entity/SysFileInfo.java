@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("")
+@TableName("sys_file_info")
 public class SysFileInfo {
     @TableId(type = IdType.AUTO)
     private Long id;
