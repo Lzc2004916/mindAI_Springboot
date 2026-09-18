@@ -18,6 +18,14 @@ spring:
         completions-path: /v1/chat/completions
       api-key: sk-xxtuidmbrtvakwrgkolamqqeppfgkmehnmiokrhwuglqcpwo
       base-url: https://api.siliconflow.cn
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+file:
+  upload-dir: D:\mindAI_Springboot\file
+  access-prefix: /files/**
+
 jwt:
   secret: MySecretKeyForJWT2026!@#$%^&*()_+SecureKeyHere
   expiration: 86400000  # 24小时（毫秒）

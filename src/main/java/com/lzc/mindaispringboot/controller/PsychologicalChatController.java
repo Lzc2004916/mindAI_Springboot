@@ -1,15 +1,16 @@
 package com.lzc.mindaispringboot.controller;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lzc.mindaispringboot.AiService.PsychologicalSupportService;
 import com.lzc.mindaispringboot.AiService.StructOutPut;
 import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.Aop.Token_Aspect;
 import com.lzc.mindaispringboot.common.ConsultaionStreamDTO;
 import com.lzc.mindaispringboot.common.Dto.ConsultationSessionCreateDto;
+import com.lzc.mindaispringboot.common.Dto.SessionPageQuery;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.common.ResultCode;
-import com.lzc.mindaispringboot.entity.ConsultationMessage;
 import com.lzc.mindaispringboot.entity.ConsultationSession;
 import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.response.ConsultationMessageResponseDTO;
@@ -17,7 +18,6 @@ import com.lzc.mindaispringboot.service.ConsultationMessageService;
 import com.lzc.mindaispringboot.service.ConsultationSessionService;
 import com.lzc.mindaispringboot.util.AuthUtil;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -76,11 +76,13 @@ public class PsychologicalChatController {
     }
     @GetToken
     @GetMapping("/sessions")
-    public Result<List<ConsultationSession>> listSessions(@RequestParam(value = "userId",required = false) Long userId){
+    public Result<Page<ConsultationSession>> listSessions(SessionPageQuery query){
         Long currentUserId = Token_Aspect.getUserId();
-        //如果是用户怎么样都能有值，只能看到自己的信息
-        Long filterUserId = AuthUtil.isAdmin() ? userId : currentUserId;
-        return Result.success(consultationSessionService.listSessions(filterUserId));
+        /// 非管理员强制覆盖 userId 为自己，就算前端传了别人的 id 也无效
+        if (!AuthUtil.isAdmin()){
+            query.setUserId(currentUserId);
+        }
+        return Result.success(consultationSessionService.pageSessions(query));
     }
     @GetToken
     @GetMapping("/sessions/{sessionId}/messages")

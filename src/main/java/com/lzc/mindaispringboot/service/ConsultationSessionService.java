@@ -4,12 +4,13 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lzc.mindaispringboot.common.Dto.ConsultationSessionCreateDto;
+import com.lzc.mindaispringboot.common.Dto.SessionPageQuery;
 import com.lzc.mindaispringboot.entity.ConsultationSession;
 import com.lzc.mindaispringboot.entity.User;
 import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.mappper.ConsultationSessionMapper;
-import com.lzc.mindaispringboot.mappper.ConsultionMessageMapper;
 import com.lzc.mindaispringboot.mappper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,20 @@ public class ConsultationSessionService {
         if (userId != null) queryWrapper.eq(ConsultationSession::getUserId,userId);
         queryWrapper.orderByDesc(ConsultationSession :: getStartedAt);
         return consultationSessionMapper.selectList(queryWrapper);
+    }
+    /** 分页查询会话列表 */
+    public Page<ConsultationSession> pageSessions(SessionPageQuery query){
+        LambdaQueryWrapper<ConsultationSession> qw = new LambdaQueryWrapper<>();
+        //userId为空表示查全部
+        if (query.getUserId() != null){
+            qw.eq(ConsultationSession :: getUserId,query.getUserId());
+        }
+        //标题模糊
+        if (StrUtil.isNotBlank(query.getKeyword())){
+            qw.like(ConsultationSession :: getSessionTitle,query.getKeyword());
+        }
+        qw.orderByDesc(ConsultationSession :: getStartedAt);
+        return consultationSessionMapper.selectPage(new Page<>(query.getPargeNum(),query.getPageSize()),qw);
     }
     //按主键取单条
     public ConsultationSession getById(Long sessionId){
