@@ -21,10 +21,19 @@ public class ChatClientConfig {
     @Bean("open-ai")
     public ChatClient openAiChatClient(OpenAiChatModel openAiChatModel) {
         return ChatClient.builder(openAiChatModel)
-                //配置记忆
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory()).build())
-                //定义AI角色前置
                 .defaultSystem(PromptManage.PSYCHOLOGICAL_SUPPORT_SYSTEM_PROMPT)
                 .build();
+    }
+
+    /**
+     * 一次性结构化分析专用（情绪日记分析、会话情绪分析）：不带 ChatMemory 顾问。
+     * 带记忆的顾问强制要求每次调用都传 chat_memory_conversation_id，
+     * 而这类调用是「喂一段文本 → 出 JSON」的一次性请求，没有多轮上下文，
+     * 不该往会话记忆里塞日记正文，也不该因为缺这个参数直接抛异常。
+     */
+    @Bean("analysis")
+    public ChatClient analysisChatClient(OpenAiChatModel openAiChatModel) {
+        return ChatClient.builder(openAiChatModel).build();
     }
 }

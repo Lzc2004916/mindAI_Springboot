@@ -23,6 +23,10 @@ public class PsychologicalSupportService {
     @Autowired
     @Qualifier("open-ai")
     private ChatClient chatClient;
+    /// 一次性分析专用：不带 ChatMemory 顾问，不需要 conversationId
+    @Autowired
+    @Qualifier("analysis")
+    private ChatClient analysisChatClient;
     @Resource
     private ConsultationSessionService consultationSessionService;
     @Resource
@@ -139,7 +143,7 @@ public class PsychologicalSupportService {
         String text = dialogue.length() > 8000
                 ? dialogue.subString(dialogue.length() - 8000)
                 : dialogue.toString();
-        return chatClient.prompt()
+        return analysisChatClient.prompt()
                 .system(PromptManage.EMOTION_ANALYSIS_PROMPT)
                 .user(text)
                 .call()// ④ 发送请求，等待 AI 返回（阻塞式，非流式）

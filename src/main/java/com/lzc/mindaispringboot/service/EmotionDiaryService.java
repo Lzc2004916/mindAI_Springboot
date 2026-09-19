@@ -2,6 +2,7 @@ package com.lzc.mindaispringboot.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lzc.mindaispringboot.AiService.EmotionDiaryAnalysisService;
 import com.lzc.mindaispringboot.common.Dto.EmotionDiaryAdminPageQuery;
 import com.lzc.mindaispringboot.common.Dto.EmotionDiarySaveDTO;
 import com.lzc.mindaispringboot.entity.EmotionDiary;
@@ -16,12 +17,15 @@ import java.time.LocalDateTime;
 public class EmotionDiaryService {
     @Resource
     private EmotionDiaryMapper emotionDiaryMapper;
+    @Resource
+    private EmotionDiaryAnalysisService emotionDiaryAnalysisService;
 /// 用户端：按 用户+日期 幂等创建或更新（表有 user_date_unique 唯一键
     public EmotionDiary saveOrUpdate(Long userId, EmotionDiarySaveDTO emotionDiarySaveDTO){
         LambdaQueryWrapper<EmotionDiary> qw = new LambdaQueryWrapper<>();
         qw.eq(EmotionDiary :: getUserId, userId).eq(EmotionDiary :: getDiaryDate,emotionDiarySaveDTO.getDiaryDate());
         EmotionDiary emotionDiary = emotionDiaryMapper.selectOne(qw);
         LocalDateTime now = LocalDateTime.now();
+        boolean exists = emotionDiary != null;
         if (emotionDiary == null){
             emotionDiary = EmotionDiary.builder()
                     .userId(userId)
@@ -45,6 +49,11 @@ public class EmotionDiaryService {
             emotionDiary.setStressLevel(emotionDiarySaveDTO.getStressLevel());
             emotionDiary.setUpdatedAt(now);
             emotionDiaryMapper.updateById(emotionDiary);
+        }
+        try {
+            emotionDiaryAnalysisService.analyzeEmotionDiary(emotionDiary.getId(),exists);
+        }catch (Exception e){
+            System.err.println("AI情绪分析失败，diaryId=" + emotionDiary.getId() + "：" + e.getMessage());
         }
         return emotionDiary;
     }
