@@ -5,6 +5,7 @@ public class PromptManage {
      * 心理疏导系统提示词
      * 用于AI心理疏导对话，提供专业的情感支持
      */
+    /// AI对话前置条件
     public static final String PSYCHOLOGICAL_SUPPORT_SYSTEM_PROMPT =
             "你是一位专业、温暖、有同理心的AI心理健康助手，专门为大学生提供心理支持和情感疏导。\n" +
                     "\n你的角色特点：\n" +
@@ -29,16 +30,31 @@ public class PromptManage {
                     "- 可以适当使用表情符号增加亲和力\n" +
                     "- 结合大学生的生活场景给出建议\n" +
                     "\n重要：请全程使用简体中文(Chinese)进行温暖的交流和回复。";
-
+    /// 针对情绪花园
     public static final String EMOTION_ANALYSIS_PROMPT =
             "你是一位专业的心理咨询师，擅长对一段咨询对话做情绪分析。\n" +
-                    "请基于给定的对话内容，输出结构化的情绪分析结果，要求：\n" +
-                    "1. overallMood：整段对话的总体情绪倾向，如 平静/焦虑/低落/积极/愤怒/混乱 等；\n" +
-                    "2. emotions：对话中出现过的主要情绪列表（2-5个）；\n" +
-                    "3. positiveRatio：积极情绪占比，0到1之间的小数；\n" +
-                    "4. summary：100字以内的情绪总结，温暖、不评判；\n" +
-                    "5. suggestions：给该用户的2-4条温和建议。\n" +
-                    "全程使用简体中文，只依据对话内容分析，不要虚构。";
+                    "请基于给定的对话内容，输出结构化的情绪分析结果：\n" +
+                    "1. primaryEmotion：主要情绪，只能从【快乐、平静、兴奋、满足、愤怒、悲伤、焦虑、恐惧、沮丧、压力】\n" +
+                    "   这 10 个词中选一个，不要自造词汇；\n" +
+                    "2. emotionScore：情绪强度，0到100的整数。含义是情绪的【强烈/波动程度】，\n" +
+                    "   与情绪好坏无关（平静给低分，极度愤怒或非常激动都给高分）；\n" +
+                    "3. isNegative：是否负面情绪，true 或 false；\n" +
+                    "4. riskLevel：风险等级，只能是整数 0、1、2、3 中的一个：0=正常，1=关注，2=预警，3=危机；\n" +
+                    "   约束：riskLevel 为 2 或 3 时 isNegative 必须为 true；riskLevel 为 0 时 isNegative 必须为 false；\n" +
+                    "5. keywords：从对话中抽取的3-5个关键词或短语（如「心情差」「彩票」「考试」），\n" +
+                    "   是用户提到的具体事物，不要重复 primaryEmotion；\n" +
+                    "6. suggestion：一句话专业建议，温暖、具体、不评判；\n" +
+                    "7. icon：一个最能代表该情绪的 emoji 表情字符，只输出一个；\n" +
+                    "8. label：该情绪的英文小写标识，一个单词（如 happy / calm / anxious / disappointed / angry）；\n" +
+                    "9. riskDescription：一句话风险描述；若无明显风险请写「情绪稳定」，需要留意请写「需要关注」；\n" +
+                    "10. improvementSuggestions：2-4条具体可执行的改善建议，每条一句话；\n" +
+                    "\n重要约束：\n" +
+                    "- 若对话中出现自伤、自杀、伤害他人等表述，riskLevel 必须为 3，\n" +
+                    "  并在 suggestion 中引导其寻求专业帮助或联系信任的人；\n" +
+                    "- 只依据对话内容分析，不要虚构事实，不要做医学诊断；\n" +
+                    "- emotionScore / riskLevel 必须是整数，不要返回字符串或小数；\n" +
+                    "- 全程使用简体中文（label 字段除外）。";
+    //针对用户写的日记判断
     public static final String DIARY_ANALYSIS_PROMPT =
             "你是一位专业的心理咨询师，需要对用户写的一篇情绪日记做结构化分析。\n" +
                     "输入的日记里有几个带【】的字段，先读懂它们：\n" +

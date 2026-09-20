@@ -1,16 +1,19 @@
 package com.lzc.mindaispringboot.controller;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.Aop.Token_Aspect;
-import com.lzc.mindaispringboot.common.Dto.EmotionDiaryAdminPageQuery;
+import com.lzc.mindaispringboot.common.Dto.EmotionDiaryAdminQuery;
 import com.lzc.mindaispringboot.common.Dto.EmotionDiarySaveDTO;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.entity.EmotionDiary;
+import com.lzc.mindaispringboot.response.EmotionDiaryAdminVO;
 import com.lzc.mindaispringboot.service.EmotionDiaryService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/emotion-diary")
 public class EmotionDiaryController {
@@ -26,9 +29,9 @@ public class EmotionDiaryController {
     /// 管理端
     @GetToken
     @PreAuthorize("hasRole('2')")
-    @GetMapping
-    public Result<Page<EmotionDiary>> adminPage(EmotionDiaryAdminPageQuery query){
-        return Result.success(emotionDiaryService.adminPage(query));
+    @GetMapping("/admin/page")
+    public Result<List<EmotionDiaryAdminVO>> adminPage(EmotionDiaryAdminQuery query){
+        return Result.success(emotionDiaryService.adminList(query));
     }
     @GetToken
     @PreAuthorize("hasRole('2')")

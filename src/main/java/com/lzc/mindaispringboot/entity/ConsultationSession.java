@@ -42,4 +42,7 @@ public class ConsultationSession  {
     // 最后一次情绪分析更新时间
     @TableField("last_emotion_updated_at")
     private LocalDateTime lastEmotionUpdatedAt;
+    // 上次情绪分析时的消息条数（用于判断是否需要重新分析）
+    @TableField("last_emotion_msg_count")
+    private Integer lastEmotionMsgCount;
 }

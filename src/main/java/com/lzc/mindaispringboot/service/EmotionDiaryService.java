@@ -1,17 +1,21 @@
 package com.lzc.mindaispringboot.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lzc.mindaispringboot.AiService.EmotionDiaryAnalysisService;
-import com.lzc.mindaispringboot.common.Dto.EmotionDiaryAdminPageQuery;
+import com.lzc.mindaispringboot.common.Dto.EmotionDiaryAdminQuery;
 import com.lzc.mindaispringboot.common.Dto.EmotionDiarySaveDTO;
 import com.lzc.mindaispringboot.entity.EmotionDiary;
+import com.lzc.mindaispringboot.entity.User;
 import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.mappper.EmotionDiaryMapper;
+import com.lzc.mindaispringboot.mappper.UserMapper;
+import com.lzc.mindaispringboot.response.EmotionDiaryAdminVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EmotionDiaryService {
@@ -19,6 +23,9 @@ public class EmotionDiaryService {
     private EmotionDiaryMapper emotionDiaryMapper;
     @Resource
     private EmotionDiaryAnalysisService emotionDiaryAnalysisService;
+    @Resource
+    private UserMapper userMapper;
+    private static final int MAX_ROWS = 500;
 /// 用户端：按 用户+日期 幂等创建或更新（表有 user_date_unique 唯一键
     public EmotionDiary saveOrUpdate(Long userId, EmotionDiarySaveDTO emotionDiarySaveDTO){
         LambdaQueryWrapper<EmotionDiary> qw = new LambdaQueryWrapper<>();
@@ -58,12 +65,32 @@ public class EmotionDiaryService {
         return emotionDiary;
     }
     /** 管理端：分页查询情绪日志 */
-    public Page<EmotionDiary> adminPage(EmotionDiaryAdminPageQuery query){
+    public List<EmotionDiaryAdminVO> adminList(EmotionDiaryAdminQuery query){
         LambdaQueryWrapper<EmotionDiary> qw = new LambdaQueryWrapper<>();
         if (query.getUserId() != null) qw.eq(EmotionDiary :: getUserId,query.getUserId());
         if (query.getStartDate() != null) qw.ge(EmotionDiary :: getDiaryDate, query.getStartDate());
         if (query.getEndDate() != null) qw.le(EmotionDiary :: getDiaryDate, query.getEndDate());
-        return emotionDiaryMapper.selectPage(new Page<>(query.getPageNum(),query.getPageSize()),qw);
+        if (query.getMinMoodScore() != null) qw.ge(EmotionDiary :: getMoodScore, query.getMinMoodScore());
+        if (query.getMaxMoodScore() != null) qw.le(EmotionDiary :: getMoodScore, query.getMaxMoodScore());
+        qw.orderByDesc(EmotionDiary :: getCreatedAt).orderByDesc(EmotionDiary :: getId);
+        qw.last("LIMIT" + MAX_ROWS);
+        List<EmotionDiary> list = emotionDiaryMapper.selectList(qw);
+        if (list.isEmpty()) return List.of(); // 空就早返回
+        Set<Long> userIds = list.stream()
+                .map(EmotionDiary::getUserId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, User> userMap = Collections.emptyMap();
+        if (!userIds.isEmpty()){
+            userMap = userMapper
+                    .selectByIds(userIds).stream()
+                    .collect(Collectors.toMap(User :: getId, u -> u, (a,b) -> a));
+        }
+        Map<Long,User> finalUserMap = userMap;
+        List<EmotionDiaryAdminVO> emotionDiaryAdminVOList = list.stream()
+                .map(d -> EmotionDiaryAdminVO.from(d, finalUserMap.get(d.getUserId())))
+                .toList();
+        return emotionDiaryAdminVOList;
     }
     /** 管理端：删除情绪日志 */
     public void adminDelete(Long userId){

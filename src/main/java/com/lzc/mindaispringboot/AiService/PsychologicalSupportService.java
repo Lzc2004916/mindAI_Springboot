@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PsychologicalSupportService {
@@ -31,7 +33,8 @@ public class PsychologicalSupportService {
     private ConsultationSessionService consultationSessionService;
     @Resource
     private ConsultationMessageService consultationMessageService;
-
+    @Resource
+    private ObjectMapper objectMapper;
     public StructOutPut.StreamChatSession startSession(Long userId, ConsultationSessionCreateDto consultationSessionCreateDto){
         //创建数据库会话记录
         ConsultationSession session = consultationSessionService.createSession(userId, consultationSessionCreateDto);
@@ -109,7 +112,7 @@ public class PsychologicalSupportService {
                     .subscribe();
         });
     }
-    public Long extractSessionId(String sessionId){
+    private Long extractSessionId(String sessionId){
         if (sessionId == null || !sessionId.startsWith("session_")) return null;
         return Long.parseLong(sessionId.replace("session_",""));
     }
@@ -121,18 +124,64 @@ public class PsychologicalSupportService {
         if (!isAdmin && !session.getUserId().equals(userId)){
             throw new BusionessException("无权访问该会话");
         }
+        // ① 24 小时缓存并且上次情绪分析时的消息条数：有就直接返回
+        Integer currentCount = consultationMessageService.getMessageCount(dbsession);
         if (session.getLastEmotionAnalysis() != null
                 && session.getLastEmotionUpdatedAt() != null
                 && session.getLastEmotionUpdatedAt().isAfter(LocalDateTime.now().minusHours(24))
+                && Objects.equals(session.getLastEmotionMsgCount(), currentCount)
         ){
-            return JSONUtil.toBean(session.getLastEmotionAnalysis(), StructOutPut.EmotionAnalysis.class);
+            StructOutPut.EmotionAnalysis cached  = readCache(session.getLastEmotionAnalysis());
+            if (cached != null) return cached;
         }
-        StructOutPut.EmotionAnalysis analysis = analyzeSessionEmotion(dbsession);
-        session.setLastEmotionAnalysis(JSONUtil.toJsonStr(analysis));
+        /// 调AI分析
+        StructOutPut.EmotionAnalysis raw = analyzeSessionEmotion(dbsession);
+        /// 兜底
+        StructOutPut.EmotionAnalysis analysis = normalize(raw);
+        /// set最后一次情绪分析结果
+        session.setLastEmotionAnalysis(objectMapper.writeValueAsString(analysis));
         session.setLastEmotionUpdatedAt(LocalDateTime.now());
+        session.setLastEmotionMsgCount(currentCount);
         consultationSessionService.updateById(session);
         return analysis;
     }
+    /// 读缓存：解析失败或解析出来是残缺对象时返回null，让调用方重新分析
+    private StructOutPut.EmotionAnalysis readCache(String json){
+        if (json == null || json.isBlank()) return null;
+        try {
+            StructOutPut.EmotionAnalysis cached = objectMapper.readValue(json, StructOutPut.EmotionAnalysis.class);
+            return cached.primaryEmotion() != null ? cached : null;
+        }catch (Exception e){
+            return null;
+        }
+    }
+    /// AI 漏字段 / 值越界 / risk 与 isNegative 矛盾时兜底，避免前端显示 undefined
+    private StructOutPut.EmotionAnalysis normalize(StructOutPut.EmotionAnalysis r){
+        String primary = r == null || r.primaryEmotion() == null ? "平静" : r.primaryEmotion();
+        int score = 50;
+        if (r != null && r.emotionScore() != null)score = Math.max(0, Math.min(100, r.emotionScore()));
+        int risk = 0;
+        if (r != null && r.riskLevel() != null) risk = Math.max(0,Math.min(3,r.riskLevel()));
+        boolean negative =  (r != null && r.isNegative() != null) ? r.isNegative() : risk >= 2;
+        if (risk >= 2) negative = true;
+        if (risk == 0) negative = false;
+        List<String> keywords = (r == null || r.keywords() == null) ?  List.of() : r.keywords();
+        List<String> improve = (r == null || r.improvementSuggestions() == null) ? List.of() : r.improvementSuggestions();
+        return new StructOutPut.EmotionAnalysis(
+                primary,
+                score,
+                negative,
+                risk,
+                keywords,
+                r == null || r.suggestion() == null ? "保持当下的节奏就好" : r.suggestion(),
+                r == null || r.icon() == null ? "\uD83D\uDE42" : r.icon(),
+                r == null || r.label() == null ? "calm" : r.label(),
+                r == null || r.riskDescription() == null ? "情绪稳定" : r.riskDescription(),
+                improve,
+                System.currentTimeMillis()
+        );
+    }
+    //情绪花园AI分析
     private StructOutPut.EmotionAnalysis analyzeSessionEmotion(Long dbSession){
         List<ConsultationMessageResponseDTO> message = consultationMessageService.listBySession(dbSession);
         if (message.isEmpty()) throw new BusionessException("该会话暂无消息，无法进行情绪分析");
