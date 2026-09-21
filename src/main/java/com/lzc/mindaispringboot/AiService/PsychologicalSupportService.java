@@ -1,7 +1,6 @@
 package com.lzc.mindaispringboot.AiService;
 
 import cn.hutool.core.text.StrBuilder;
-import cn.hutool.json.JSONUtil;
 import com.lzc.mindaispringboot.common.Dto.ConsultationSessionCreateDto;
 import com.lzc.mindaispringboot.entity.ConsultationSession;
 import com.lzc.mindaispringboot.exception.BusionessException;

@@ -88,7 +88,7 @@ public class EmotionDiaryAdminVO {
     }
     private static String preview(String content){
         if (content == null) return "";
-        if (content.length() < PREVIEW_MAX) return content;
+        if (content.length() <= PREVIEW_MAX) return content;
         return content.substring(0, PREVIEW_MAX) + "-";
     }
 }
