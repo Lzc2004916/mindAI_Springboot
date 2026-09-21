@@ -20,6 +20,7 @@ public class UserService {
     @Resource
     private UserMapper userMapper;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    //登录
     public UserLoginResponseDTO login(UserLoginCommandDTO userLoginCommandDTO) {
         //构建查询条件
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -42,6 +43,7 @@ public class UserService {
         UserLoginResponseDTO.UserDetailResponseDTO userInfo = UserConvert.entityToDetailResponse(user);
         return UserConvert.entityToLoginResponse(token,userInfo);
     }
+    /// 注册
     public UserLoginResponseDTO.UserDetailResponseDTO register(UserRegisterCommandDTO userRegisterCommandDTO) {
         System.out.println(JSONUtil.parseObj(userRegisterCommandDTO));
         if (!userRegisterCommandDTO.getPassword().equals(userRegisterCommandDTO.getConfirmPassword())){
@@ -65,6 +67,7 @@ public class UserService {
         userMapper.insert(user);
         return UserConvert.entityToDetailResponse(user);
     }
+    /// 获取账号信息
     public UserLoginResponseDTO.UserDetailResponseDTO getUserById(Long userId){
         User user = userMapper.selectById(userId);
         if (user == null) throw new BusionessException("用户不存在");

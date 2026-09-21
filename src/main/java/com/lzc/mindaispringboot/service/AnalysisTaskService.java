@@ -47,7 +47,7 @@ public class AnalysisTaskService {
                 : errorMessage.substring(0,Math.min(errorMessage.length(),1000));
         aiAnalysisTaskMapper.retryOrFail(taskId,msg);
     }
-    /// 定时扫描
+    /// 获取在队列中 待处理的状态
     public List<AiAnalysisTask> pickPending(int limit){
         return aiAnalysisTaskMapper.pickPendingTasks(limit);
     }

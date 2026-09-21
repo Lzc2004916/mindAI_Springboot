@@ -18,7 +18,7 @@ public interface AiAnalysisTaskMapper extends BaseMapper<AiAnalysisTask> {
     @Select("SELECT * FROM ai_analysis_task WHERE status = 'PENDING' " +
             "ORDER BY priority DESC, id ASC LIMIT #{limit}")
     List<AiAnalysisTask> pickPendingTasks(@Param("limit") int limit);
-
+    //待处理 > 处理中
     @Update("update ai_analysis_task set status = 'PROCESSING',started_at = NOW(),updated_at = NOW() "
     + "where id = #{id} and status = 'PENDING'"
     )
