@@ -14,6 +14,7 @@ import com.lzc.mindaispringboot.common.ResultCode;
 import com.lzc.mindaispringboot.entity.ConsultationSession;
 import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.response.ConsultationMessageResponseDTO;
+import com.lzc.mindaispringboot.response.SessionAdminVO;
 import com.lzc.mindaispringboot.service.ConsultationMessageService;
 import com.lzc.mindaispringboot.service.ConsultationSessionService;
 import com.lzc.mindaispringboot.util.AuthUtil;
@@ -76,7 +77,7 @@ public class PsychologicalChatController {
     }
     @GetToken
     @GetMapping("/sessions")
-    public Result<Page<ConsultationSession>> listSessions(SessionPageQuery query){
+    public Result<Page<SessionAdminVO>> listSessions(SessionPageQuery query){
         Long currentUserId = Token_Aspect.getUserId();
         /// 非管理员强制覆盖 userId 为自己，就算前端传了别人的 id 也无效
         if (!AuthUtil.isAdmin()){

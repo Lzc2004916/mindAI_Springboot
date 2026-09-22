@@ -16,7 +16,15 @@ public interface EmotionDiaryMapper extends BaseMapper<EmotionDiary> {
             "FROM emotion_diary WHERE diary_date >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY) " +
             "GROUP BY diary_date ORDER BY diary_date")
     List<Map<String, Object>> selectMoodTrend(@Param("days") int days);
-    /** 全库情绪均分 */
-    @Select("SELECT IFNULL(ROUND(AVG(mood_score),1),0) FROM emotion_diary")
+    @Select("select date_format(diary_date,'%Y-%m-%d') as `date` ," +
+            " round(avg(mood_score),1) as avgMoodScore," +
+            "count(*) as recordCount," +
+            "count(distinct user_id) as diaryUsers " +
+            "from emotion_diary where " +
+            "diary_date >= date_sub(curdate(),interval 6 day ) " +
+            "group by date_format(diary_date,'%Y-%m-%d') " +
+            "order by date_format(diary_date,'%Y-%m-%d') asc ;")
+    List<Map<String,Object>> selectDiaryDaily7d();
+    @Select("select round(avg(mood_score)) from emotion_diary")
     Double selectAvgMood();
 }
