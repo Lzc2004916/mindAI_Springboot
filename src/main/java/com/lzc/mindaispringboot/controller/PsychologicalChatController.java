@@ -60,6 +60,9 @@ public class PsychologicalChatController {
                     .build()
             );
         }
+        // 会话归属校验：非管理员只能往自己的会话里发消息（防越权写入）
+        Long dbSessionId = extractDbSessionId(consultaionStreamDTO.getSessionId());
+        checkOwnership(dbSessionId);
         //开始流式对话
        return psychologicalSupportService.streamPsychologicalChat(consultaionStreamDTO.getSessionId(),consultaionStreamDTO.getUserMessage())
                 .map(Fragment ->{

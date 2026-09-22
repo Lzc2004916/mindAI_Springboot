@@ -74,7 +74,7 @@ public class ConsultationSessionService {
         }
         qw.orderByDesc(ConsultationSession :: getStartedAt);
         // ① 分页查会话
-        Page<ConsultationSession> page = consultationSessionMapper.selectPage(new Page<>(query.resolvePage(), query.getPageSize()), qw);
+        Page<ConsultationSession> page = consultationSessionMapper.selectPage(new Page<>(query.resolvePage(), query.resolvePageSize()), qw);
         //当前页的数据
         List<ConsultationSession> records = page.getRecords();
         // 构建 VO 分页结果，保留分页元信息

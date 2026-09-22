@@ -5,6 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DataAnalyticsVO {
     /** 概览卡片（Dashboard 顶部 4 张卡） */
     private SystemOverview systemOverview;
