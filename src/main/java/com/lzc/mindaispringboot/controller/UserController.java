@@ -9,6 +9,7 @@ import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.response.UserLoginResponseDTO;
 import com.lzc.mindaispringboot.service.UserService;
 import com.lzc.mindaispringboot.util.JwtTokenUtil;
+import com.lzc.mindaispringboot.util.TokenBlacklist;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -39,5 +40,14 @@ public class UserController {
         Long userId = Token_Aspect.getUserId();
         UserLoginResponseDTO.UserDetailResponseDTO result = userService.getUserById(userId);
         return Result.success(result);
+    }
+    @GetToken
+    @PostMapping("/logout")
+    public Result<Void> logout(HttpServletRequest request){
+        String token = JwtTokenUtil.extractTokenFromRequest(request);
+        if (token != null) {
+            TokenBlacklist.add(token);
+        }
+        return null;
     }
 }

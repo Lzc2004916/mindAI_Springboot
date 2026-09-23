@@ -43,7 +43,12 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
             ResponseUtil.writeResponse(response, ResultCode.ACCESS_UNAUTHORIZED);
             return;
         }
-
+        /// 已退出登录（token在黑名单中）
+        if (TokenBlacklist.contains(token)){
+            clearSecurityContext();
+            ResponseUtil.writeResponse(response,ResultCode.TOKEN_BLOCKED);
+            return;
+        }
         // 2. 验证 token
         JwtTokenUtil.TokenVerificationResult TokenResult = JwtTokenUtil.validateToken(token);
         // 3. claims 残缺，拒绝
