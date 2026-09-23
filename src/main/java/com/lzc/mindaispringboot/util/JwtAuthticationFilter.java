@@ -1,9 +1,7 @@
 package com.lzc.mindaispringboot.util;
 
-import cn.hutool.json.JSONUtil;
 import com.lzc.mindaispringboot.common.ResultCode;
 import com.lzc.mindaispringboot.config.SecurityConfig;
-import com.lzc.mindaispringboot.entity.User;
 import com.lzc.mindaispringboot.enumClass.UserStatus;
 import com.lzc.mindaispringboot.response.UserLoginResponseDTO;
 import com.lzc.mindaispringboot.service.UserService;
@@ -12,9 +10,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -44,11 +40,11 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
             return;
         }
         /// 已退出登录（token在黑名单中）
-        if (TokenBlacklist.contains(token)){
-            clearSecurityContext();
-            ResponseUtil.writeResponse(response,ResultCode.TOKEN_BLOCKED);
-            return;
-        }
+//        if (TokenBlacklist.contains(token)){
+//            clearSecurityContext();
+//            ResponseUtil.writeResponse(response,ResultCode.TOKEN_BLOCKED);
+//            return;
+//        }
         // 2. 验证 token
         JwtTokenUtil.TokenVerificationResult TokenResult = JwtTokenUtil.validateToken(token);
         // 3. claims 残缺，拒绝
