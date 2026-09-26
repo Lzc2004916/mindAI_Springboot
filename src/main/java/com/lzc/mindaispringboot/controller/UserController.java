@@ -8,9 +8,7 @@ import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.response.UserLoginResponseDTO;
 import com.lzc.mindaispringboot.service.UserService;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.antlr.runtime.Token;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,9 +37,12 @@ public class UserController {
         UserLoginResponseDTO.UserDetailResponseDTO result = userService.getUserById(userId);
         return Result.success(result);
     }
+    /**
+     * 退出登录（无状态方案）
+     */
     @GetToken
     @PostMapping("/logout")
-    public Result<Void> logout(HttpServletRequest request){
+    public Result<Void> logout(){
         SecurityContextHolder.clearContext();
         return Result.success();
     }

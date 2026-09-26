@@ -31,20 +31,15 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = JwtTokenUtil.extractTokenFromRequest(request);
-
+        String token = request.getHeader("token");
         // 1. 无 token，拒绝
         if (!StringUtils.hasText(token)) {
             clearSecurityContext();
             ResponseUtil.writeResponse(response, ResultCode.ACCESS_UNAUTHORIZED);
             return;
         }
-        /// 已退出登录（token在黑名单中）
-//        if (TokenBlacklist.contains(token)){
-//            clearSecurityContext();
-//            ResponseUtil.writeResponse(response,ResultCode.TOKEN_BLOCKED);
-//            return;
-//        }
+        // 说明：本项目采用「无状态登出」，不做 token 黑名单
+        //      —— 登出由前端清掉本地 token 完成，服务端不让已签发的 token 失效（见指南第 3 章）
         // 2. 验证 token
         JwtTokenUtil.TokenVerificationResult TokenResult = JwtTokenUtil.validateToken(token);
         // 3. claims 残缺，拒绝

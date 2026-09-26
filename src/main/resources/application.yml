@@ -6,8 +6,8 @@ spring:
     name: MindAiSpringBoot
   datasource:
     url: jdbc:mysql://localhost:3306/mental_health_assistant?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: root
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
   ai:
     openai:
       chat:
@@ -16,7 +16,7 @@ spring:
           tool-calling:
             enabled: true
         completions-path: /v1/chat/completions
-      api-key: sk-xxtuidmbrtvakwrgkolamqqeppfgkmehnmiokrhwuglqcpwo
+      api-key: ${AI_API_KEY}
       base-url: https://api.siliconflow.cn
   servlet:
     multipart:
@@ -27,7 +27,7 @@ file:
   access-prefix: /files/**
 
 jwt:
-  secret: MySecretKeyForJWT2026!@#$%^&*()_+SecureKeyHere
+  secret: ${JWT_SECRET:MySecretKeyForJWT2026_dev_only}
   expiration: 86400000  # 24小时（毫秒）
   refresh-expiration: 604800000  # 7天（毫秒）
   header: Authorization  # token头部名称

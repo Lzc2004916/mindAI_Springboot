@@ -61,16 +61,6 @@ public class JwtTokenUtil implements ApplicationContextAware {
             throw new RuntimeException("生成token失败：" + e);
         }
     }
-
-    //获取token
-    public static String extractTokenFromRequest(HttpServletRequest request){
-        if (request == null) return null;
-        String token = request.getHeader("token");   // 从请求头取 token
-        if (StringUtils.hasText(token)) {             // token 不为 null，不是空串，不是纯空格
-            return token;                             // 有效，返回
-        }
-        return null;                                  // 无效，返回 null
-    }
     //两种获取token方式(附加知识点)
 //    public static String getCurrentToken() {
 //        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
