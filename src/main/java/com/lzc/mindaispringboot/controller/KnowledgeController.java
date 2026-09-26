@@ -72,7 +72,7 @@ public class KnowledgeController {
     @GetToken
     @PreAuthorize("hasRole('2')")
     @DeleteMapping("/article/{id}")
-    public Result deleteArticle(@PathVariable String id){
+    public Result<Void> deleteArticle(@PathVariable String id){
         knowledgeArticleService.delete(id);
         return Result.success();
     }

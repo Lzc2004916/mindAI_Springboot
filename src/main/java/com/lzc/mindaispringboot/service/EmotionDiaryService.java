@@ -1,7 +1,7 @@
 package com.lzc.mindaispringboot.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lzc.mindaispringboot.AiService.EmotionDiaryAnalysisService;
 import com.lzc.mindaispringboot.common.Dto.EmotionDiaryAdminQuery;
 import com.lzc.mindaispringboot.common.Dto.EmotionDiarySaveDTO;
 import com.lzc.mindaispringboot.entity.EmotionDiary;
@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,6 +65,25 @@ public class EmotionDiaryService {
             log.warn("AI分析任务入队失败，diaryId={}", emotionDiary.getId(),e);
         }
         return emotionDiary;
+    }
+    /**
+     * 用户端：查询"自己的"日记（按日期倒序，可选按月份过滤）
+     *
+     * @param userId 从 token 取，前端传不了别人的
+     * @param month  形如 "2026-09"，不传就返回全部
+     */
+    public List<EmotionDiary> listMine(Long userId, String month) {
+        LambdaQueryWrapper<EmotionDiary> qw = new LambdaQueryWrapper<>();
+        qw.eq(EmotionDiary::getUserId, userId);
+        if (StrUtil.isNotBlank(month)) {
+            // 前端传的是 "2026-09" 这种月份字符串，解析成"当月第一天 ~ 当月最后一天"
+            YearMonth ym = YearMonth.parse(month);
+            qw.ge(EmotionDiary::getDiaryDate, ym.atDay(1))
+              .le(EmotionDiary::getDiaryDate, ym.atEndOfMonth());
+        }
+        qw.orderByDesc(EmotionDiary::getDiaryDate);
+        // 这里不用 LIMIT：查的是自己的日记，数量天然有限（管理端那条全站接口才需要加）
+        return emotionDiaryMapper.selectList(qw);
     }
     /** 管理端：分页查询情绪日志 */
     public List<EmotionDiaryAdminVO> adminList(EmotionDiaryAdminQuery query){

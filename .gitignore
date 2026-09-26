@@ -14,3 +14,9 @@ target/
 *.log
 hs_err_pid*.log
 temp_fix_sql.py
+
+# 用户上传的文件（本地目录，绝不进版本库）
+file/
+
+# 本地专用配置（放真实密钥用，绝不能提交）
+application-local.yml

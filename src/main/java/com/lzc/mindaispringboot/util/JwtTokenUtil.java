@@ -61,20 +61,35 @@ public class JwtTokenUtil implements ApplicationContextAware {
             throw new RuntimeException("生成token失败：" + e);
         }
     }
-    //两种获取token方式(附加知识点)
-//    public static String getCurrentToken() {
-//        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-//        if (attributes != null){
-//            HttpServletRequest request = attributes.getRequest();
-//            String jwtToken = (String) request.getAttribute("jwtToken");
-//            if (jwtToken != null) {
-//                return jwtToken;
-//            }
-//            String headerToken = extractTokenFromRequest(request);
-//            return headerToken;
-//        }
-//        return null;
-//    }
+    /**
+     * 从请求头解析 token —— 全项目唯一的取值入口（过滤器与 AOP 都调它，别在别处再写一份）。
+     *
+     * 优先读 application.yml 里配置的请求头（jwt.header，默认 Authorization），并自动去掉前缀
+     * （jwt.token-prefix，默认 "Bearer "）；读不到时兼容旧的 "token" 头（当前前端就是这个写法），
+     * 所以前端不改也能用。
+     *
+     * 注意：这里只负责"把字符串取出来"，真正的合法性校验在 validateToken 里做。
+     */
+    public static String extractTokenFromRequest(HttpServletRequest request){
+        if (request == null) return null;
+        JwtConfig jwtConfig = getJwtConfig();
+
+        // ① 优先读配置里指定的请求头
+        String headerName = jwtConfig.getHeader();
+        if (StringUtils.hasText(headerName)) {
+            String header = request.getHeader(headerName);
+            if (StringUtils.hasText(header)) {
+                String prefix = jwtConfig.getTokenPrefix();
+                if (prefix != null && !prefix.isEmpty() && header.startsWith(prefix)) {
+                    header = header.substring(prefix.length()).trim();   // 去掉 "Bearer "
+                }
+                if (StringUtils.hasText(header)) return header;
+            }
+        }
+        // ② 兼容旧的 token 头（前端统一成 Authorization 之后可以删掉这一段）
+        String legacy = request.getHeader("token");
+        return StringUtils.hasText(legacy) ? legacy : null;
+    }
     //验证token
     public static TokenVerificationResult validateToken(String token){
         try {

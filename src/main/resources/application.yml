@@ -24,6 +24,7 @@ spring:
       max-request-size: 10MB
 file:
   upload-dir: D:\mindAI_Springboot\file
+  # ⚠️ 改这个前缀必须同步改 FileService 里入库的 "/files/"（两处是各自写死的，没联动）
   access-prefix: /files/**
 
 jwt:

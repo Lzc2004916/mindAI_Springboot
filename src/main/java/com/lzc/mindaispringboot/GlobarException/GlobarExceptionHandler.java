@@ -3,7 +3,9 @@ package com.lzc.mindaispringboot.GlobarException;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.common.ResultCode;
 import com.lzc.mindaispringboot.exception.BusionessException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,6 +13,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobarExceptionHandler {
     //参数校验异常
@@ -33,5 +36,26 @@ public class GlobarExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public Result<String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         return Result.error(ResultCode.FILE_SIZE_EXCEEDED.getCode(),ResultCode.FILE_SIZE_EXCEEDED.getMessage(), "最大支持10MB");
+    }
+
+    /**
+     * 兜底：所有未被上面接住的异常，都转成统一的 Result 结构，
+     * 免得前端拿到 Spring 默认的错误 JSON（它的字段名是 timestamp/status/error，没有 code）。
+     *
+     * 两个关键点：
+     * ① 完整堆栈只写日志，**不要把 e.getMessage() 返回给前端** ——
+     *    数据库异常的消息里可能带表名、SQL、字段名，属于信息泄露。
+     * ② `ErrorResponse` 是 Spring 自己的"带 HTTP 状态码的异常"（如 404 找不到路径、
+     *    405 方法不支持、400 请求体解析失败）。这些直接原样抛出交给 Spring 处理，
+     *    保留正确的状态码；否则所有打错的 URL 都会变成"系统错误 500"，反而难排查。
+     */
+    @ExceptionHandler(Exception.class)
+    public Object handleException(Exception e) throws Exception {
+        if (e instanceof ErrorResponse) {
+            throw e;   // 交由 Spring 按它自带的状态码处理（404/405/400 等）
+        }
+        log.error("系统异常", e);
+        return Result.error(ResultCode.SYSTEM_ERROR.getCode(),
+                            ResultCode.SYSTEM_ERROR.getMessage(), null);
     }
 }

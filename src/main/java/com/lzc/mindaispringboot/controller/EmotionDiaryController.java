@@ -26,6 +26,15 @@ public class EmotionDiaryController {
         Long userId = Token_Aspect.getUserId();
         return Result.success(emotionDiaryService.saveOrUpdate(userId, emotionDiarySaveDTO));
     }
+    /**
+     * 用户端：查看自己的日记（前端"我的情绪花园 / 我的日记"页用）
+     * 可选按月份过滤，如 ?month=2026-09
+     */
+    @GetToken
+    @GetMapping("/mine")
+    public Result<List<EmotionDiary>> mine(@RequestParam(required = false) String month){
+        return Result.success(emotionDiaryService.listMine(Token_Aspect.getUserId(), month));
+    }
     /// 管理端
     @GetToken
     @PreAuthorize("hasRole('2')")

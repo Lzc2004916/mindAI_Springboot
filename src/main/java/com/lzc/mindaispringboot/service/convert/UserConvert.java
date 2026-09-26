@@ -45,7 +45,6 @@ public class UserConvert {
                 .phone(userRegisterCommandDTO.getPhone())
                 .gender(userRegisterCommandDTO.getGender())
                 .birthday(userRegisterCommandDTO.getBirthday())
-                .userType(userRegisterCommandDTO.getUserType())
                 .status(UserStatus.NORMAL.getCode())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())

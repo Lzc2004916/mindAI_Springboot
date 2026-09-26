@@ -111,7 +111,8 @@ public class ConsultationSessionService {
                     SessionAdminVO.builder()
                             .id(s.getId())
                             .userId(s.getUserId())
-                            .userNickname(u ==null ? null : u.getNickname())
+                            // 用 getDisplayName()：昵称优先、为空则回落用户名，避免管理端昵称列空白
+                            .userNickname(u == null ? null : u.getDisplayName())
                             .sessionTitle(s.getSessionTitle())
                             .lastMessageContent(last == null ? null : SessionAdminVO.preview(last.getContent()))
                             .messageCount((long) msgs.size())
