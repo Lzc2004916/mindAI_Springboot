@@ -2,6 +2,7 @@ package com.lzc.mindaispringboot.config;
 
 import cn.hutool.core.text.AntPathMatcher;
 import com.lzc.mindaispringboot.util.JwtAuthticationFilter;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -22,7 +23,8 @@ public class SecurityConfig {
             "/api/test",
             "/api/user/login",
             "/api/user/add",
-            "/files/**"
+            "/files/**",
+            "/error"
     };
     public static Boolean isPublicPATH(String requestURI){
         for(String str:PUBLIC_MATCHERS){
@@ -46,6 +48,7 @@ public class SecurityConfig {
                                 (SessionCreationPolicy.STATELESS)
                         ))
                 .authorizeHttpRequests(auth ->auth
+                                .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
                 //公开路径，无需登录即可访问
                                 .requestMatchers(PUBLIC_MATCHERS).permitAll()
                         //其他请求都需要认证
