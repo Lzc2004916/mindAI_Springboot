@@ -45,7 +45,8 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
         // 3. claims 残缺，拒绝
         if (TokenResult == null || !TokenResult.isToken()) {
             clearSecurityContext();
-            ResponseUtil.writeResponse(response, ResultCode.TOKEN_INVALID);
+            ResultCode rc = JwtTokenUtil.isExpired(token) ? ResultCode.TOKEN_EXPIRED : ResultCode.TOKEN_INVALID;
+            ResponseUtil.writeResponse(response, rc);
             return;
         }
         // 4. 查用户，状态异常则拒绝

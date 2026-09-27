@@ -35,6 +35,15 @@ public class JwtTokenUtil implements ApplicationContextAware {
             this.token = token;
         }
     }
+    public static boolean isExpired(String token) {
+        try {
+            Date exp = JWT.decode(token).getExpiresAt();
+            //过期了走true
+            return exp != null && exp.before(new Date());
+        }catch (Exception e){
+            return false;
+        }
+    }
     @Override
     public void setApplicationContext(ApplicationContext applicationContext){
         JwtTokenUtil.applicationContext = applicationContext;
