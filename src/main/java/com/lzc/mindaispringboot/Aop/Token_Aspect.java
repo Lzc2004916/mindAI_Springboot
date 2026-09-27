@@ -26,15 +26,10 @@ public class Token_Aspect {
     @Around("@annotation(com.lzc.mindaispringboot.Aop.GetToken)")
     public Object resolveToken(ProceedingJoinPoint joinPoint) throws Throwable {
         HttpServletRequest request = getCurrentRequest();
-        // 取值统一走 JwtTokenUtil（读 yml 配置的头 + 前缀，并兼容旧的 token 头）
         String token = JwtTokenUtil.extractTokenFromRequest(request);
-        // 取不到就抛业务异常，交给全局异常处理器返回标准的 Result 结构。
-        // ⚠️ 这里必须抛异常，不能让切面静默返回空值 —— 那会直接吞掉这次调用，
-        //    原方法不执行、响应体是空的，属于"静默失败"，出问题极难排查。
         if (!StringUtils.hasText(token)) {
             throw new BusionessException("未登录");
         }
-        // 过滤器已经验过一遍 token，这里是安全场景，直接验签取 userId
         DecodedJWT jwt = JwtTokenUtil.verifyToken(token);
         Long userId = jwt.getClaim("userId").asLong();
         try {

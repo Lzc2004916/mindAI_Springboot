@@ -54,7 +54,7 @@ public class PromptManage {
                     "- 只依据对话内容分析，不要虚构事实，不要做医学诊断；\n" +
                     "- emotionScore / riskLevel 必须是整数，不要返回字符串或小数；\n" +
                     "- 全程使用简体中文（label 字段除外）。";
-    //针对用户写的日记判断
+    ///针对用户写的日记判断
     public static final String DIARY_ANALYSIS_PROMPT =
             "你是一位专业的心理咨询师，需要对用户写的一篇情绪日记做结构化分析。\n" +
                     "输入的日记里有几个带【】的字段，先读懂它们：\n" +

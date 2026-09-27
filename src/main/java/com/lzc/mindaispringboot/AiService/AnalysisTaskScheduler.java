@@ -9,9 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 @Component
 /// AI 分析任务的后台消费者：每 30 秒捞一批 PENDING 任务执行
@@ -30,7 +27,7 @@ public class AnalysisTaskScheduler {
         if (recycled > 0) log.info("回收卡死的 PROCESSING 任务 {} 条",recycled);
         int dead = analysisTaskService.markStuckAsFailed();
         if (dead > 0) log.warn("僵死且重试耗尽的 PROCESSING 任务 {} 条已标记 FAILED", dead);
-        //如果一个集合中没有数据，会自然跳过循环
+        ///如果一个集合中没有数据，会自然跳过循环
         for (AiAnalysisTask task : analysisTaskService.pickPending(BATCH_SIZE)) {
             // 如果一条数据中没有待处理状态就跳过
             if (!analysisTaskService.markProcessing(task.getId())) continue;

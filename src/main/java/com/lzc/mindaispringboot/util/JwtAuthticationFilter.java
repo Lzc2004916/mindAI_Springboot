@@ -39,8 +39,7 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
             ResponseUtil.writeResponse(response, ResultCode.ACCESS_UNAUTHORIZED);
             return;
         }
-        // 说明：本项目采用「无状态登出」，不做 token 黑名单
-        //      —— 登出由前端清掉本地 token 完成，服务端不让已签发的 token 失效（见指南第 3 章）
+
         // 2. 验证 token
         JwtTokenUtil.TokenVerificationResult TokenResult = JwtTokenUtil.validateToken(token);
         // 3. claims 残缺，拒绝
@@ -64,7 +63,12 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
             ResponseUtil.writeResponse(response, ResultCode.TOKEN_ACCESS_FORBIDDEN);
             return;
         }
-
+        // 6. 校验 token 版本号：修改密码后旧 token 立即失效
+        if (TokenResult.getTokenVersion() == null || !TokenResult.getTokenVersion().equals(user.getTokenVersion())) {
+            clearSecurityContext();
+            ResponseUtil.writeResponse(response, ResultCode.TOKEN_INVALID);
+            return;
+        }
         // 5. 认证通过，设置 Spring Security 上下文
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 TokenResult.getUsername(),

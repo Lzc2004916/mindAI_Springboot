@@ -25,10 +25,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-
         // 用户ID
         @TableId(type = IdType.AUTO)
         private Long id;
+        @TableField("token_version")
+        private Integer tokenVersion;
         // 用户名
         @NotBlank(message = "用户名不能为空")
         @Size(min = 3, max = 50, message = "用户名长度必须在3到50个字符之间")

@@ -1,5 +1,6 @@
 package com.lzc.mindaispringboot.service.convert;
 
+import com.lzc.mindaispringboot.common.Dto.ChangesPassword_Username;
 import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.entity.User;
 import com.lzc.mindaispringboot.enumClass.UserStatus;
@@ -25,6 +26,7 @@ public class UserConvert {
                 .status(user.getStatus())
                 .statusDisplayName(user.getStatusDisplayName())
                 .displayName(user.getDisplayName())
+                .tokenVersion(user.getTokenVersion())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

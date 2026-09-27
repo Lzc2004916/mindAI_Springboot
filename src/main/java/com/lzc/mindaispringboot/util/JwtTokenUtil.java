@@ -24,12 +24,14 @@ public class JwtTokenUtil implements ApplicationContextAware {
         private final Long userId;
         private final String username;
         private final Integer roleType;
+        private final Integer tokenVersion;
         private final boolean token;
 
-        public TokenVerificationResult(Long userId, String username, Integer roleType, boolean token) {
+        public TokenVerificationResult(Long userId, String username, Integer roleType,Integer tokenVersion, boolean token) {
             this.userId = userId;
             this.username = username;
             this.roleType = roleType;
+            this.tokenVersion = tokenVersion;
             this.token = token;
         }
     }
@@ -41,7 +43,7 @@ public class JwtTokenUtil implements ApplicationContextAware {
         return JwtTokenUtil.applicationContext.getBean(JwtConfig.class);
     }
     //生成token方法
-    public static String generateToken(Long userId,String username,Integer roleType ) {
+    public static String generateToken(Long userId,String username,Integer roleType,Integer tokenVersion) {
         try {
             JwtConfig jwtConfig = getJwtConfig();
             //生成签名算法
@@ -52,6 +54,7 @@ public class JwtTokenUtil implements ApplicationContextAware {
                     .withClaim("userId", userId)
                     .withClaim("username", username)
                     .withClaim("roleType", roleType)
+                    .withClaim("tokenVersion", tokenVersion)
                     .withExpiresAt(expiration)//过期时间
                     .withIssuedAt(new Date())//签发时间
                     .withIssuer(ISSUER)//签发者
@@ -100,9 +103,10 @@ public class JwtTokenUtil implements ApplicationContextAware {
             Long userId = jwt.getClaim("userId").asLong();
             String username = jwt.getClaim("username").asString();
             Integer roleType = jwt.getClaim("roleType").asInt();
+            Integer tokenVersion = jwt.getClaim("tokenVersion").asInt();
             // 4. 三个字段都有效才返回结果，否则返回 null
-            if (userId != null && StringUtils.hasText(username) && roleType != null) {
-                return new TokenVerificationResult(userId, username, roleType, true);
+            if (userId != null && StringUtils.hasText(username) && roleType != null && tokenVersion != null) {
+                return new TokenVerificationResult(userId, username, roleType, tokenVersion, true);
             }
             return null;
         }catch (Exception e){

@@ -38,7 +38,7 @@ public class ConsultationSessionService {
         //验证用户是否存在
         User user = userMapper.selectById(userId);
         if (user != null){
-            //创建会话记录
+            //如果存在就创建会话记录
             ConsultationSession session = ConsultationSession.builder()
                     .userId(userId)
                     .sessionTitle(SessionCreateDto.getSessionTitle())
@@ -53,13 +53,6 @@ public class ConsultationSessionService {
             return session;
         }
         return null;
-    }
-    //查询会话列表
-    public List<ConsultationSession> listSessions(Long userId){
-        LambdaQueryWrapper<ConsultationSession> queryWrapper = new LambdaQueryWrapper<>();
-        if (userId != null) queryWrapper.eq(ConsultationSession::getUserId,userId);
-        queryWrapper.orderByDesc(ConsultationSession :: getStartedAt);
-        return consultationSessionMapper.selectList(queryWrapper);
     }
     /** 分页查询会话列表 */
     public Page<SessionAdminVO> pageSessions(SessionPageQuery query){

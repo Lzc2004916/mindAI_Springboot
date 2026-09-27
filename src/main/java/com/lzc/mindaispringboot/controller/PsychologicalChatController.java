@@ -51,13 +51,6 @@ public class PsychologicalChatController {
     @GetToken
     @PostMapping(value = "/stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> streamChat(@Valid @RequestBody ConsultaionStreamDTO consultaionStreamDTO){
-        // ⚠️ 这个接口**不能抛异常出去**。
-        //    它的返回值是 SSE 流，而调用方带的是 `Accept: text/event-stream`；
-        //    一旦异常冒到全局异常处理器，处理器想返回 JSON 的 Result，会被内容协商拒绝：
-        //      HttpMediaTypeNotAcceptableException: No acceptable representation
-        //    → 异常处理器自己失败 → 客户端只拿到 **HTTP 500 + 空 body**，看不到任何原因
-        //      （服务端还会刷一大段堆栈，看起来像鉴权/过滤器出错）。
-        //    所以这里所有失败都转成 SSE 的 `error` 事件帧返回，前端能直接展示真正的错误文案。
         try {
             //获取当前用户
             Long userId = Token_Aspect.getUserId();
@@ -96,6 +89,13 @@ public class PsychologicalChatController {
                 .build()
         );
     }
+    @GetToken
+    @GetMapping("/session/{sessionId}/emotion")
+    public Result<StructOutPut.EmotionAnalysis> sessionEmotion(@PathVariable String sessionId){
+        Long userId = Token_Aspect.getUserId();
+        StructOutPut.EmotionAnalysis resultEmotion = psychologicalSupportService.getEmotionAnalysis(sessionId, userId, AuthUtil.isAdmin());
+        return Result.success(resultEmotion);
+    }
 
     /** 取出可以给用户看的错误信息：业务异常用它自己的话，其它一律给通用文案（不泄露内部细节） */
     private String describe(Throwable e){
@@ -128,13 +128,7 @@ public class PsychologicalChatController {
         consultationSessionService.deleteSession(dbSessionId);
         return  Result.success();
     }
-    @GetToken
-    @GetMapping("/session/{sessionId}/emotion")
-    public Result<StructOutPut.EmotionAnalysis> sessionEmotion(@PathVariable String sessionId){
-        Long userId = Token_Aspect.getUserId();
-        StructOutPut.EmotionAnalysis resultEmotion = psychologicalSupportService.getEmotionAnalysis(sessionId, userId, AuthUtil.isAdmin());
-        return Result.success(resultEmotion);
-    }
+
     /// 安全校验
     private Long extractDbSessionId(String sessionId){
         try {

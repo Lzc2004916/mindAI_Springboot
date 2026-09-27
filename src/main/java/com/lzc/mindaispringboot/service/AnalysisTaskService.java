@@ -14,6 +14,17 @@ import java.util.List;
 public class AnalysisTaskService {
     @Resource
     private AiAnalysisTaskMapper aiAnalysisTaskMapper;
+    /// 防止用户重复放入分析队列，一篇日记最多一个待处理任务
+    public AiAnalysisTask enqueue(Long diaryId,Long userId){
+        LambdaQueryWrapper<AiAnalysisTask> last = new LambdaQueryWrapper<AiAnalysisTask>()
+                .eq(AiAnalysisTask::getDiaryId, diaryId)
+                .eq(AiAnalysisTask::getStatus, AiReturnResult.PENDING.getCode())
+                .orderByDesc(AiAnalysisTask::getId)
+                .last("limit 1");
+        AiAnalysisTask pending = aiAnalysisTaskMapper.selectOne(last);
+        if (pending != null) return pending;
+        return createPending(diaryId,userId,AiReturnResult.TYPE_AUTO.getCode());
+    }
     public AiAnalysisTask createPending(Long diaryId,Long userId, String taskType){
         AiAnalysisTask task = AiAnalysisTask.builder()
                 .diaryId(diaryId)
@@ -51,17 +62,7 @@ public class AnalysisTaskService {
     public List<AiAnalysisTask> pickPending(int limit){
         return aiAnalysisTaskMapper.pickPendingTasks(limit);
     }
-    /// 防止用户重复放入分析队列，一篇日记最多一个待处理任务
-    public AiAnalysisTask enqueue(Long diaryId,Long userId){
-        LambdaQueryWrapper<AiAnalysisTask> last = new LambdaQueryWrapper<AiAnalysisTask>()
-                .eq(AiAnalysisTask::getDiaryId, diaryId)
-                .eq(AiAnalysisTask::getStatus, AiReturnResult.PENDING.getCode())
-                .orderByDesc(AiAnalysisTask::getId)
-                .last("limit 1");
-        AiAnalysisTask pending = aiAnalysisTaskMapper.selectOne(last);
-        if (pending != null) return pending;
-        return createPending(diaryId,userId,AiReturnResult.TYPE_AUTO.getCode());
-    }
+
     public int recycleStuck(){
         return aiAnalysisTaskMapper.recycleStuck();
     }

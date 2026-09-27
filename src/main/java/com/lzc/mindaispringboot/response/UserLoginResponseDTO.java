@@ -29,6 +29,7 @@ public class UserLoginResponseDTO {
         private Integer status;             // 状态（0:禁用 1:正常）
         private String statusDisplayName;   // 状态显示名称
         private String displayName;         // 显示名称
+        private Integer tokenVersion;       // token版本号（修改密码后+1，过滤器校验用）
         private LocalDateTime createdAt;           // 创建时间
         private LocalDateTime updatedAt;           // 更新时间
     }

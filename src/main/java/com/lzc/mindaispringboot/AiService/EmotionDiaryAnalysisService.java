@@ -13,7 +13,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/// 情绪日记的 AI 分析：分析一条日记，把结构化结果写回 emotion_diary.ai_emotion_analysis。
+/// 情绪日记的 AI 分析
 @Service
 public class EmotionDiaryAnalysisService {
     /// 发给AI的文本上限
@@ -49,7 +49,7 @@ public class EmotionDiaryAnalysisService {
         emotionDiaryMapper.updateById(diary);
         return result;
     }
-    ///AI 漏字段时补默认值，避免前端显示 undefined 或进度条异常
+    ///AI 漏字段时补默认值
     private StructOutPut.DiaryEmotionAnalysis normalize(StructOutPut.DiaryEmotionAnalysis r){
         if (r == null){
             return new StructOutPut.DiaryEmotionAnalysis("平静", 30, 0, false, "保持当下的节奏就好", "情绪稳定", List.of());

@@ -2,6 +2,7 @@ package com.lzc.mindaispringboot.controller;
 
 import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.Aop.Token_Aspect;
+import com.lzc.mindaispringboot.common.Dto.ChangesPassword_Username;
 import com.lzc.mindaispringboot.common.Dto.UserLoginCommandDTO;
 import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.common.Result;
@@ -36,6 +37,13 @@ public class UserController {
         Long userId = Token_Aspect.getUserId();
         UserLoginResponseDTO.UserDetailResponseDTO result = userService.getUserById(userId);
         return Result.success(result);
+    }
+    @GetToken
+    @PostMapping("Changes")
+    public Result<String> Changes(@Valid @RequestBody ChangesPassword_Username changesPasswordUsername){
+        Long userId = Token_Aspect.getUserId();
+        String newToken = userService.changes(userId, changesPasswordUsername);
+        return Result.success(newToken);
     }
     /**
      * 退出登录（无状态方案）

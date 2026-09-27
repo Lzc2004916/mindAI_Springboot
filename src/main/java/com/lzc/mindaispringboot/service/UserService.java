@@ -1,6 +1,7 @@
 package com.lzc.mindaispringboot.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lzc.mindaispringboot.common.Dto.ChangesPassword_Username;
 import com.lzc.mindaispringboot.common.Dto.UserLoginCommandDTO;
 import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.entity.User;
@@ -11,10 +12,13 @@ import com.lzc.mindaispringboot.response.UserLoginResponseDTO;
 import com.lzc.mindaispringboot.service.convert.UserConvert;
 import com.lzc.mindaispringboot.util.JwtTokenUtil;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,7 +68,7 @@ public class UserService {
         }
 
         LOGIN_FAIL.remove(account);   // 登录成功，清零失败计数
-        String token = JwtTokenUtil.generateToken(user.getId(), user.getUsername(), user.getUserType());
+        String token = JwtTokenUtil.generateToken(user.getId(), user.getUsername(), user.getUserType(), user.getTokenVersion());
         UserLoginResponseDTO.UserDetailResponseDTO userInfo = UserConvert.entityToDetailResponse(user);
         return UserConvert.entityToLoginResponse(token, userInfo);
     }
@@ -126,5 +130,28 @@ public class UserService {
             rec[0]++;
             return rec;
         });
+    }
+    //修改密码
+    public String changes(Long userId, @Valid ChangesPassword_Username changesPasswordUsername) {
+        User user = userMapper.selectOne(
+                new LambdaQueryWrapper<User>().eq(User::getId, userId)
+        );
+        if (user == null) throw new BusionessException("没有该用户");
+
+        String password = changesPasswordUsername.getPassword().trim();
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BusionessException("原密码错误");
+        }
+
+        if (!changesPasswordUsername.getNewPassword().equals(changesPasswordUsername.getConfirmPassword())) {
+            throw new BusionessException("两次密码不一致");
+        }
+        String newPassword = passwordEncoder.encode(changesPasswordUsername.getConfirmPassword().trim());
+        int newVersion = (user.getTokenVersion() == null ? 0 : user.getTokenVersion()) + 1;
+        user.setPassword(newPassword);
+        user.setTokenVersion(newVersion);
+        user.setUpdatedAt(LocalDateTime.now());
+        userMapper.updateById(user);
+        return JwtTokenUtil.generateToken(user.getId(), user.getUsername(), user.getUserType(), newVersion);
     }
 }
