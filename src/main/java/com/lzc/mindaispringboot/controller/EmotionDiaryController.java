@@ -1,11 +1,11 @@
 package com.lzc.mindaispringboot.controller;
 import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.Aop.Token_Aspect;
-import com.lzc.mindaispringboot.common.Dto.EmotionDiaryAdminQuery;
-import com.lzc.mindaispringboot.common.Dto.EmotionDiarySaveDTO;
+import com.lzc.mindaispringboot.Dto.EmotionDiaryAdminQuery;
+import com.lzc.mindaispringboot.Dto.EmotionDiarySaveDTO;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.entity.EmotionDiary;
-import com.lzc.mindaispringboot.response.EmotionDiaryAdminVO;
+import com.lzc.mindaispringboot.VO.EmotionDiaryAdminVO;
 import com.lzc.mindaispringboot.service.EmotionDiaryService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -37,13 +37,13 @@ public class EmotionDiaryController {
     }
     /// 管理端
     @GetToken
-    @PreAuthorize("hasRole('2')")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
     @GetMapping("/admin/page")
     public Result<List<EmotionDiaryAdminVO>> adminPage(EmotionDiaryAdminQuery query){
         return Result.success(emotionDiaryService.adminList(query));
     }
     @GetToken
-    @PreAuthorize("hasRole('2')")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
     @DeleteMapping("/admin/{id}")
     public Result<Void> admindelete(@PathVariable Long id){
         emotionDiaryService.adminDelete(id);

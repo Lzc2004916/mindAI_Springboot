@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -25,21 +27,24 @@ public class Token_Aspect {
 
     @Around("@annotation(com.lzc.mindaispringboot.Aop.GetToken)")
     public Object resolveToken(ProceedingJoinPoint joinPoint) throws Throwable {
-        HttpServletRequest request = getCurrentRequest();
-        String token = JwtTokenUtil.extractTokenFromRequest(request);
-        if (!StringUtils.hasText(token)) {
-            throw new BusionessException("未登录");
-        }
-        DecodedJWT jwt = JwtTokenUtil.verifyToken(token);
-        Long userId = jwt.getClaim("userId").asLong();
+        Long userId = currentUserId();//从安全认证上下文取出当前线程的userId
+        if (userId == null) throw new BusionessException("未登录");
         try {
             USER_ID_HOLDER.set(userId);
+            //调用目标方法
             return joinPoint.proceed();
-        } finally {
-            USER_ID_HOLDER.remove();   // 用完必须清理
+        }finally {
+            //调用完目标方法return后执行
+            USER_ID_HOLDER.remove();
         }
     }
-
+    public static Long currentUserId(){
+        // ① 从 SecurityContextHolder 中取出当前线程绑定的认证信息
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // ② 判空 + 类型检查：principal 必须是 Long 类型（即 userId）
+        if (auth == null || !(auth.getPrincipal() instanceof Long id)) return null;
+        return id;
+    }
     private HttpServletRequest getCurrentRequest(){
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null) {

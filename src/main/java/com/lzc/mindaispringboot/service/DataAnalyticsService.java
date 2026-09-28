@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzc.mindaispringboot.mappper.ConsultationSessionMapper;
 import com.lzc.mindaispringboot.mappper.EmotionDiaryMapper;
 import com.lzc.mindaispringboot.mappper.UserMapper;
-import com.lzc.mindaispringboot.response.DataAnalyticsVO;
+import com.lzc.mindaispringboot.VO.DataAnalyticsVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 

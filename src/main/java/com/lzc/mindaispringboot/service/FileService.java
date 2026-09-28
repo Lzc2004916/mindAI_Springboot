@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.lzc.mindaispringboot.entity.SysFileInfo;
 import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.mappper.SysFileInfoMapper;
-import com.lzc.mindaispringboot.response.FileUploadVO;
+import com.lzc.mindaispringboot.VO.FileUploadVO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

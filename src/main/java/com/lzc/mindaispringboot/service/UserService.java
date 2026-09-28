@@ -1,26 +1,25 @@
 package com.lzc.mindaispringboot.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lzc.mindaispringboot.common.Dto.ChangesPassword_Username;
-import com.lzc.mindaispringboot.common.Dto.UserLoginCommandDTO;
-import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
+import com.lzc.mindaispringboot.Dto.ChangePasswordRequest;
+import com.lzc.mindaispringboot.Dto.UserLoginCommandDTO;
+import com.lzc.mindaispringboot.Dto.UserRegisterCommandDTO;
+import com.lzc.mindaispringboot.common.ResultCode;
 import com.lzc.mindaispringboot.entity.User;
 import com.lzc.mindaispringboot.enumClass.UserType;
 import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.mappper.UserMapper;
-import com.lzc.mindaispringboot.response.UserLoginResponseDTO;
-import com.lzc.mindaispringboot.service.convert.UserConvert;
+import com.lzc.mindaispringboot.VO.UserLoginResponseDTO;
+import com.lzc.mindaispringboot.Dto.convert.UserConvert;
 import com.lzc.mindaispringboot.util.JwtTokenUtil;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -29,21 +28,9 @@ public class UserService {
     private UserMapper userMapper;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    /** 登录失败计数：key = 传入的账号（用户名或邮箱），value = [失败次数, 首次失败时间戳] */
-    private static final Map<String, long[]> LOGIN_FAIL = new ConcurrentHashMap<>();
-    /** 连续失败多少次后临时锁定 */
-    private static final int MAX_FAIL_COUNT = 5;
-    /** 锁定时长（毫秒） */
-    private static final long LOCK_MILLIS = 5 * 60 * 1000L;
-
     //登录
     public UserLoginResponseDTO login(UserLoginCommandDTO userLoginCommandDTO) {
         String account = userLoginCommandDTO.getUsername();
-
-        // 1. 先看该账号是否因连续失败被临时锁定
-        if (isLocked(account)) {
-            throw new BusionessException("登录失败次数过多，请 5 分钟后再试");
-        }
 
         // 2. 先按用户名查，查不到再按邮箱查
         //    不用 eq(username).or().eq(email)：若某人的用户名恰好等于另一人的邮箱，
@@ -59,7 +46,6 @@ public class UserService {
         //    避免攻击者靠提示差异枚举出哪些用户名真实存在。
         String inputPassword = userLoginCommandDTO.getPassword().trim();
         if (user == null || !passwordEncoder.matches(inputPassword, user.getPassword())) {
-            recordFail(account);
             throw new BusionessException("用户名或密码错误");
         }
         // 4. 密码正确才看账号状态。顺序不能反 —— 否则"已被禁用"这个提示本身也泄露了账号存在。
@@ -67,7 +53,6 @@ public class UserService {
             throw new BusionessException("用户已被禁用，请联系管理员");
         }
 
-        LOGIN_FAIL.remove(account);   // 登录成功，清零失败计数
         String token = JwtTokenUtil.generateToken(user.getId(), user.getUsername(), user.getUserType(), user.getTokenVersion());
         UserLoginResponseDTO.UserDetailResponseDTO userInfo = UserConvert.entityToDetailResponse(user);
         return UserConvert.entityToLoginResponse(token, userInfo);
@@ -81,7 +66,7 @@ public class UserService {
         LambdaQueryWrapper<User> userNameQuery = new LambdaQueryWrapper<>();
         userNameQuery.eq(User::getUsername,userRegisterCommandDTO.getUsername());
         if (userMapper.selectCount(userNameQuery) > 0){
-            throw new BusionessException("用户名已存在");
+            throw new BusionessException(ResultCode.ACCOUNT_SAME.getCode(),"用户名已存在");
         }
         LambdaQueryWrapper<User> emailQuery = new LambdaQueryWrapper<>();
         emailQuery.eq(User::getEmail,userRegisterCommandDTO.getEmail());
@@ -105,34 +90,9 @@ public class UserService {
         if (user == null) throw new BusionessException("用户不存在");
         return UserConvert.entityToDetailResponse(user);
     }
-
-    /** 该账号是否处于"失败次数过多"的锁定状态 */
-    private boolean isLocked(String account) {
-        if (account == null || account.isBlank()) return false;
-        long[] rec = LOGIN_FAIL.get(account);
-        if (rec == null) return false;
-        // 锁已过期 → 清掉记录，重新开始计数
-        if (System.currentTimeMillis() - rec[1] > LOCK_MILLIS) {
-            LOGIN_FAIL.remove(account);
-            return false;
-        }
-        return rec[0] >= MAX_FAIL_COUNT;
-    }
-
-    /** 记一次登录失败（超过锁定时长的旧记录会重新开始计数） */
-    private void recordFail(String account) {
-        if (account == null || account.isBlank()) return;
-        long now = System.currentTimeMillis();
-        LOGIN_FAIL.compute(account, (k, rec) -> {
-            if (rec == null || now - rec[1] > LOCK_MILLIS) {
-                return new long[]{1, now};
-            }
-            rec[0]++;
-            return rec;
-        });
-    }
+    private static final Pattern PWD_PATTERN = Pattern.compile("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,20}$");
     //修改密码
-    public String changes(Long userId, @Valid ChangesPassword_Username changesPasswordUsername) {
+    public String changePassword(Long userId, @Valid ChangePasswordRequest changesPasswordUsername) {
         User user = userMapper.selectOne(
                 new LambdaQueryWrapper<User>().eq(User::getId, userId)
         );
@@ -142,16 +102,27 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BusionessException("原密码错误");
         }
-
-        if (!changesPasswordUsername.getNewPassword().equals(changesPasswordUsername.getConfirmPassword())) {
+        String newPassword =changesPasswordUsername.getNewPassword().trim();
+        if (!newPassword.equals(changesPasswordUsername.getConfirmPassword())) {
             throw new BusionessException("两次密码不一致");
         }
-        String newPassword = passwordEncoder.encode(changesPasswordUsername.getConfirmPassword().trim());
+        if (!PWD_PATTERN.matcher(newPassword.trim()).matches()){
+            throw new BusionessException("新密码需 8-50 位，且同时包含字母和数字");
+        }
+        if (passwordEncoder.matches(newPassword,user.getPassword())){
+            throw new BusionessException("新密码不能与原密码相同");
+        }
         int newVersion = (user.getTokenVersion() == null ? 0 : user.getTokenVersion()) + 1;
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         user.setTokenVersion(newVersion);
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.updateById(user);
         return JwtTokenUtil.generateToken(user.getId(), user.getUsername(), user.getUserType(), newVersion);
+    }
+    public String renewToken(Long userId){
+        User user = userMapper.selectById(userId);
+        if (user == null) throw new BusionessException("用户不存在");
+        if (!user.isActive()) throw new BusionessException("用户已经被禁用，请联系管理员");
+        return JwtTokenUtil.generateToken(user.getId(),user.getUsername(),user.getUserType(), userId.intValue());
     }
 }

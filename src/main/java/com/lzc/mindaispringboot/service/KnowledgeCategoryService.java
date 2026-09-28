@@ -3,7 +3,7 @@ package com.lzc.mindaispringboot.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzc.mindaispringboot.entity.KnowledgeCategory;
 import com.lzc.mindaispringboot.mappper.KnowledgeCategoryMapper;
-import com.lzc.mindaispringboot.response.CategoryTreeVO;
+import com.lzc.mindaispringboot.VO.CategoryTreeVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 

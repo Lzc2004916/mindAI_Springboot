@@ -1,7 +1,7 @@
 package com.lzc.mindaispringboot.config;
 
 import cn.hutool.core.text.AntPathMatcher;
-import com.lzc.mindaispringboot.util.JwtAuthticationFilter;
+import com.lzc.mindaispringboot.security.JwtAuthticationFilter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

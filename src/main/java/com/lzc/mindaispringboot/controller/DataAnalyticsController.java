@@ -2,7 +2,7 @@ package com.lzc.mindaispringboot.controller;
 
 import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.common.Result;
-import com.lzc.mindaispringboot.response.DataAnalyticsVO;
+import com.lzc.mindaispringboot.VO.DataAnalyticsVO;
 import com.lzc.mindaispringboot.service.DataAnalyticsService;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +16,7 @@ public class DataAnalyticsController {
     @Resource
     private DataAnalyticsService dataAnalyticsService;
     @GetToken
-    @PreAuthorize("hasRole('2')")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
     @GetMapping("/overview")
     public Result<DataAnalyticsVO> overview(){
         return Result.success(dataAnalyticsService.overview());

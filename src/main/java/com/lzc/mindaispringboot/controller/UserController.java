@@ -2,11 +2,11 @@ package com.lzc.mindaispringboot.controller;
 
 import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.Aop.Token_Aspect;
-import com.lzc.mindaispringboot.common.Dto.ChangesPassword_Username;
-import com.lzc.mindaispringboot.common.Dto.UserLoginCommandDTO;
-import com.lzc.mindaispringboot.common.Dto.UserRegisterCommandDTO;
+import com.lzc.mindaispringboot.Dto.ChangePasswordRequest;
+import com.lzc.mindaispringboot.Dto.UserLoginCommandDTO;
+import com.lzc.mindaispringboot.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.common.Result;
-import com.lzc.mindaispringboot.response.UserLoginResponseDTO;
+import com.lzc.mindaispringboot.VO.UserLoginResponseDTO;
 import com.lzc.mindaispringboot.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -39,10 +39,10 @@ public class UserController {
         return Result.success(result);
     }
     @GetToken
-    @PostMapping("Changes")
-    public Result<String> Changes(@Valid @RequestBody ChangesPassword_Username changesPasswordUsername){
+    @PostMapping("/password")
+    public Result<String> Changes(@Valid @RequestBody ChangePasswordRequest changesPasswordUsername){
         Long userId = Token_Aspect.getUserId();
-        String newToken = userService.changes(userId, changesPasswordUsername);
+        String newToken = userService.changePassword(userId, changesPasswordUsername);
         return Result.success(newToken);
     }
     /**
@@ -53,5 +53,10 @@ public class UserController {
     public Result<Void> logout(){
         SecurityContextHolder.clearContext();
         return Result.success();
+    }
+    @GetToken
+    @PostMapping("/renew")
+    public Result<String> renew(){
+        return Result.success(userService.renewToken(Token_Aspect.getUserId()));
     }
 }

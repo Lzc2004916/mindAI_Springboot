@@ -3,7 +3,7 @@ package com.lzc.mindaispringboot.controller;
 import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.Aop.Token_Aspect;
 import com.lzc.mindaispringboot.common.Result;
-import com.lzc.mindaispringboot.response.FileUploadVO;
+import com.lzc.mindaispringboot.VO.FileUploadVO;
 import com.lzc.mindaispringboot.service.FileService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;

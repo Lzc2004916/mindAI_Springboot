@@ -2,7 +2,7 @@ package com.lzc.mindaispringboot.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzc.mindaispringboot.entity.ConsultationMessage;
 import com.lzc.mindaispringboot.mappper.ConsultionMessageMapper;
-import com.lzc.mindaispringboot.response.ConsultationMessageResponseDTO;
+import com.lzc.mindaispringboot.VO.ConsultationMessageResponseDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 

@@ -3,17 +3,17 @@ package com.lzc.mindaispringboot.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.Aop.Token_Aspect;
-import com.lzc.mindaispringboot.common.Dto.KnowledgeArticleCreateDTO;
-import com.lzc.mindaispringboot.common.Dto.KnowledgeArticlePageQuery;
-import com.lzc.mindaispringboot.common.Dto.KnowledgeArticleStatusDTO;
-import com.lzc.mindaispringboot.common.Dto.KnowledgeArticleUpdateDTO;
+import com.lzc.mindaispringboot.Dto.KnowledgeArticleCreateDTO;
+import com.lzc.mindaispringboot.Dto.KnowledgeArticlePageQuery;
+import com.lzc.mindaispringboot.Dto.KnowledgeArticleStatusDTO;
+import com.lzc.mindaispringboot.Dto.KnowledgeArticleUpdateDTO;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.entity.KnowledgeArticle;
 import com.lzc.mindaispringboot.entity.KnowledgeCategory;
-import com.lzc.mindaispringboot.response.CategoryTreeVO;
+import com.lzc.mindaispringboot.VO.CategoryTreeVO;
 import com.lzc.mindaispringboot.service.KnowledgeArticleService;
 import com.lzc.mindaispringboot.service.KnowledgeCategoryService;
-import com.lzc.mindaispringboot.util.AuthUtil;
+import com.lzc.mindaispringboot.security.AuthUtil;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +35,7 @@ public class KnowledgeController {
         return Result.success(knowledgeArticleService.page(query, skipPublishFilter));
     }
     @GetToken
-    @PreAuthorize("hasRole('2')")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
     @PostMapping("/article")
     public Result<KnowledgeArticle> addArticle(@Valid @RequestBody KnowledgeArticleCreateDTO knowledgeArticleCreateDTO){
         Long userId = Token_Aspect.getUserId();
@@ -44,7 +44,7 @@ public class KnowledgeController {
     }
     /** 管理端：更新文章（只覆盖非 null 字段） */
     @GetToken
-    @PreAuthorize("hasRole('2')")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
     @PutMapping("/article/{id}")
     public Result<KnowledgeArticle> updateArticle(
             @PathVariable String id,
@@ -54,7 +54,7 @@ public class KnowledgeController {
     }
     /** 管理端：发布 / 下架 */
     @GetToken
-    @PreAuthorize("hasRole('2')")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
     @PutMapping("/article/{id}/status")
     public Result<Void> updateArticleStatus(
             @PathVariable String id,
@@ -70,7 +70,7 @@ public class KnowledgeController {
     }
     //删除文章
     @GetToken
-    @PreAuthorize("hasRole('2')")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
     @DeleteMapping("/article/{id}")
     public Result<Void> deleteArticle(@PathVariable String id){
         knowledgeArticleService.delete(id);

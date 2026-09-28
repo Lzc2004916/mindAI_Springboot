@@ -1,12 +1,11 @@
 package com.lzc.mindaispringboot.service;
 
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.lzc.mindaispringboot.common.Dto.ConsultationSessionCreateDto;
-import com.lzc.mindaispringboot.common.Dto.SessionPageQuery;
+import com.lzc.mindaispringboot.Dto.ConsultationSessionCreateDto;
+import com.lzc.mindaispringboot.Dto.SessionPageQuery;
 import com.lzc.mindaispringboot.entity.ConsultationMessage;
 import com.lzc.mindaispringboot.entity.ConsultationSession;
 import com.lzc.mindaispringboot.entity.User;
@@ -14,9 +13,10 @@ import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.mappper.ConsultationSessionMapper;
 import com.lzc.mindaispringboot.mappper.ConsultionMessageMapper;
 import com.lzc.mindaispringboot.mappper.UserMapper;
-import com.lzc.mindaispringboot.response.SessionAdminVO;
+import com.lzc.mindaispringboot.VO.SessionAdminVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -122,6 +122,7 @@ public class ConsultationSessionService {
         return consultationSessionMapper.selectById(sessionId);
     }
     //删除会话及其全部消息
+    @Transactional(rollbackFor = Exception.class)
     public void deleteSession(Long sessionId){
         if (consultationSessionMapper.selectById(sessionId) == null){
             throw new BusionessException("会话不存在");

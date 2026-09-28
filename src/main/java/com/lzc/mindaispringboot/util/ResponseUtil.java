@@ -4,13 +4,14 @@ import cn.hutool.json.JSONUtil;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.common.ResultCode;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-
+@Slf4j
 public class ResponseUtil {
     // 过滤器中的异常响应：鉴权失败时直接写入 JSON 错误信息，不交由全局异常处理器
     public static void writeResponse(HttpServletResponse response, ResultCode resultCode){
@@ -37,7 +38,7 @@ public class ResponseUtil {
             writer.print(jsonStr);                                          // 写入 JSON
             writer.flush();                                                 // 强制刷出，确保客户端收到
         }catch (IOException e){
-            System.out.println("写入响应失败：" + e.getMessage());
+            log.error("写入鉴权失败响应出错",e);
         }
     }
 }
