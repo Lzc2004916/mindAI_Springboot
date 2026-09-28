@@ -28,6 +28,7 @@ public class User {
         // 用户ID
         @TableId(type = IdType.AUTO)
         private Long id;
+        //Token版本号（修改密码后+1，用于使旧Token立即失效）
         @TableField("token_version")
         private Integer tokenVersion;
         // 用户名

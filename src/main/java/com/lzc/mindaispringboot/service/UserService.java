@@ -123,6 +123,6 @@ public class UserService {
         User user = userMapper.selectById(userId);
         if (user == null) throw new BusionessException("用户不存在");
         if (!user.isActive()) throw new BusionessException("用户已经被禁用，请联系管理员");
-        return JwtTokenUtil.generateToken(user.getId(),user.getUsername(),user.getUserType(), userId.intValue());
+        return JwtTokenUtil.generateToken(user.getId(),user.getUsername(),user.getUserType(), user.getTokenVersion());
     }
 }
