@@ -28,7 +28,10 @@ file:
   access-prefix: /files/**
 
 jwt:
-  secret: ${JWT_SECRET:MySecretKeyForJWT2026_dev_only}
+  # ⚠️ 必须由环境变量注入，禁止再写默认值：仓库里出现过的两个默认密钥已永久泄露（安全审查 S-01）。
+  #    这里只留 ":}"（空串兜底）是故意的 —— 让"没配"绑定成空串，由 JwtConfig 的启动自检报出可操作的错误，
+  #    而不是抛难懂的 "Could not resolve placeholder 'JWT_SECRET'"。
+  secret: ${JWT_SECRET:}
   expiration: 86400000  # 24小时（毫秒）
   refresh-expiration: 604800000  # 7天（毫秒）
   header: Authorization  # token头部名称
