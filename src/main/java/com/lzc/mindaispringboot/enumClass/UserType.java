@@ -8,6 +8,7 @@ public enum UserType {
     USER(1, "普通用户"),
     ADMIN(2, "管理员");
     public static final String ROLE_ADMIN = "ROLE_" + UserType.ADMIN.getCode();
+    public static final String ROLE_USER = "ROLE_" + UserType.USER.getCode();
     private final Integer code;
     private final String description;
     //构造方法

@@ -118,12 +118,12 @@ public class PsychologicalSupportService {
         return id;
     }
     /// 获取情绪分析（情绪花园）
-    public StructOutPut.EmotionAnalysis getEmotionAnalysis(String sessionId,Long userId,boolean isAdmin){
+    public StructOutPut.EmotionAnalysis getEmotionAnalysis(String sessionId,Long userId){
         Long dbsession = extractSessionId(sessionId);
         if (dbsession == null) throw new BusionessException("会话Id格式错误");
         ConsultationSession session = consultationSessionService.getById(dbsession);
         if (session == null) throw new BusionessException("会话不存在");
-        if (!isAdmin && !session.getUserId().equals(userId)){
+        if (!session.getUserId().equals(userId)){
             throw new BusionessException("无权访问该会话");
         }
         // ① 24 小时缓存并且上次情绪分析时的消息条数：有就直接返回

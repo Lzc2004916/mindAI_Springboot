@@ -23,6 +23,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
@@ -90,10 +91,11 @@ public class PsychologicalChatController {
         );
     }
     @GetToken
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.enumClass.UserType).ROLE_USER)")
     @GetMapping("/session/{sessionId}/emotion")
     public Result<StructOutPut.EmotionAnalysis> sessionEmotion(@PathVariable String sessionId){
         Long userId = Token_Aspect.getUserId();
-        StructOutPut.EmotionAnalysis resultEmotion = psychologicalSupportService.getEmotionAnalysis(sessionId, userId, AuthUtil.isAdmin());
+        StructOutPut.EmotionAnalysis resultEmotion = psychologicalSupportService.getEmotionAnalysis(sessionId, userId);
         return Result.success(resultEmotion);
     }
 
