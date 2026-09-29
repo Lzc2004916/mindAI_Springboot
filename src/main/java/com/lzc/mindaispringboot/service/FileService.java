@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -58,11 +59,9 @@ public class FileService {
         try {
             ///生成存储路径：根目录 / 年-月 / UUID.ext
             String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
-            ///拼接文件名
-            String relative = datePath + "/" + UUID.randomUUID() + "." + ext;
-            /// 拼接定义好的系统路径+文件名
+            String fileName = UUID.randomUUID() + "." + ext;
+            String relative = datePath + "/" + fileName;
             Path target = Paths.get(uploadDir).resolve(relative);
-            ///目录如果不存在就将file二进制存进target
             Files.createDirectories(target.getParent());
             try(var in = file.getInputStream()) {
                 //存进磁盘中
@@ -97,7 +96,6 @@ public class FileService {
         }catch (IOException e){
             throw new BusionessException("文件上传失败" + e.getMessage());
         }
-
     }
     private String resolveFileType(String ext){
         return switch (ext){

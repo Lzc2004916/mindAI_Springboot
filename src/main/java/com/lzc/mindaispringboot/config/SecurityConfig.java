@@ -23,8 +23,8 @@ public class SecurityConfig {
             "/api/test",
             "/api/user/login",
             "/api/user/add",
-            "/files/**",
-            "/error"
+            "/error",
+            "/files/**"
     };
     public static Boolean isPublicPATH(String requestURI){
         for(String str:PUBLIC_MATCHERS){

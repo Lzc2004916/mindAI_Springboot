@@ -16,7 +16,7 @@ public class DataAnalyticsController {
     @Resource
     private DataAnalyticsService dataAnalyticsService;
     @GetToken
-    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.enumClass.UserType).ROLE_ADMIN)")
     @GetMapping("/overview")
     public Result<DataAnalyticsVO> overview(){
         return Result.success(dataAnalyticsService.overview());

@@ -7,7 +7,7 @@ public enum UserType {
     //枚举常量 = 调用构造方法
     USER(1, "普通用户"),
     ADMIN(2, "管理员");
-    //
+    public static final String ROLE_ADMIN = "ROLE_" + UserType.ADMIN.getCode();
     private final Integer code;
     private final String description;
     //构造方法

@@ -72,7 +72,12 @@ public class User {
 
         // 状态 0:禁用 1:正常
         private Integer status;
-
+        //连续登录失败次数
+    @TableField("login_fail_count")
+    private Integer loginFailCount;
+    // 锁定截止时间
+    @TableField("locked_until")
+    private LocalDateTime lockedUntil;
         // 创建时间
         @TableField("created_at")
         private LocalDateTime createdAt;

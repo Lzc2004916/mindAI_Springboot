@@ -35,7 +35,7 @@ public class KnowledgeController {
         return Result.success(knowledgeArticleService.page(query, skipPublishFilter));
     }
     @GetToken
-    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.enumClass.UserType).ROLE_ADMIN)")
     @PostMapping("/article")
     public Result<KnowledgeArticle> addArticle(@Valid @RequestBody KnowledgeArticleCreateDTO knowledgeArticleCreateDTO){
         Long userId = Token_Aspect.getUserId();
@@ -44,7 +44,7 @@ public class KnowledgeController {
     }
     /** 管理端：更新文章（只覆盖非 null 字段） */
     @GetToken
-    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.enumClass.UserType).ROLE_ADMIN)")
     @PutMapping("/article/{id}")
     public Result<KnowledgeArticle> updateArticle(
             @PathVariable String id,
@@ -54,7 +54,7 @@ public class KnowledgeController {
     }
     /** 管理端：发布 / 下架 */
     @GetToken
-    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.enumClass.UserType).ROLE_ADMIN)")
     @PutMapping("/article/{id}/status")
     public Result<Void> updateArticleStatus(
             @PathVariable String id,
@@ -70,7 +70,7 @@ public class KnowledgeController {
     }
     //删除文章
     @GetToken
-    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.enumClass.UserType).ROLE_ADMIN)")
     @DeleteMapping("/article/{id}")
     public Result<Void> deleteArticle(@PathVariable String id){
         knowledgeArticleService.delete(id);

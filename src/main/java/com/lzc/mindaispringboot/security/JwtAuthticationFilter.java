@@ -1,10 +1,10 @@
 package com.lzc.mindaispringboot.security;
 
 import com.lzc.mindaispringboot.common.ResultCode;
-import com.lzc.mindaispringboot.common.SecurityConstants;
 import com.lzc.mindaispringboot.config.SecurityConfig;
 import com.lzc.mindaispringboot.enumClass.UserStatus;
 import com.lzc.mindaispringboot.VO.UserLoginResponseDTO;
+import com.lzc.mindaispringboot.enumClass.UserType;
 import com.lzc.mindaispringboot.service.UserService;
 import com.lzc.mindaispringboot.util.JwtTokenUtil;
 import com.lzc.mindaispringboot.util.ResponseUtil;
@@ -64,7 +64,7 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
             ResponseUtil.writeResponse(response, ResultCode.TOKEN_ACCESS_FORBIDDEN);
             return;
         }
-        // 6. 校验 token 版本号：修改密码后旧 token 立即失效
+        // 6. 校验 token 版本号，从旧token里取出tokenVersion进行与数据库比对
         if (TokenResult.getTokenVersion() == null || !TokenResult.getTokenVersion().equals(user.getTokenVersion())) {
             clearSecurityContext();
             ResponseUtil.writeResponse(response, ResultCode.TOKEN_INVALID);
@@ -74,10 +74,10 @@ public class JwtAuthticationFilter extends OncePerRequestFilter {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 TokenResult.getUserId(),
                 null,
-                Collections.singletonList(new SimpleGrantedAuthority(SecurityConstants.role(user.getUserType())))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getUserType()))
         );
+        //spring security存入上下文
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         filterChain.doFilter(request, response);
     }
     //清理spring security上下文

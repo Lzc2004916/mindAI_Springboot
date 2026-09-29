@@ -51,6 +51,7 @@ public class UserController {
     @GetToken
     @PostMapping("/logout")
     public Result<Void> logout(){
+        userService.logout(Token_Aspect.getUserId());
         SecurityContextHolder.clearContext();
         return Result.success();
     }

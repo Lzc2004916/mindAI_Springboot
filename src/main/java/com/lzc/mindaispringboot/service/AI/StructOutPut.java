@@ -1,5 +1,7 @@
 package com.lzc.mindaispringboot.service.AI;
 
+import lombok.Builder;
+
 import java.util.List;
 
 public class StructOutPut {
@@ -28,6 +30,7 @@ public class StructOutPut {
             Long timestamp                     // 分析时间，毫秒时间戳（由后端填，不是 AI 生成）
     ){}
     //日志
+    @Builder
     public record DiaryEmotionAnalysis(
             String primaryEmotion,              // 主要情绪：快乐/平静/兴奋/满足/愤怒/悲伤/焦虑/恐惧/沮丧/压力
             Integer emotionScore,               // 情绪强度 0~100（越高越负面/越强烈）

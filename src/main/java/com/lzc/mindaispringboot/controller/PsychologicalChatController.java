@@ -58,7 +58,7 @@ public class PsychologicalChatController {
                 return errorStream(ResultCode.UNAUTHORIZED.getCode(), "用户未登录");
             }
             // 会话归属校验：非管理员只能往自己的会话里发消息（防越权写入）
-            Long dbSessionId = extractDbSessionId(consultaionStreamDTO.getSessionId());
+            Long dbSessionId = psychologicalSupportService.parseSessionId(consultaionStreamDTO.getSessionId());
             checkOwnership(dbSessionId);
             //开始流式对话
             return psychologicalSupportService.streamPsychologicalChat(consultaionStreamDTO.getSessionId(),consultaionStreamDTO.getUserMessage())
@@ -116,29 +116,20 @@ public class PsychologicalChatController {
     @GetToken
     @GetMapping("/sessions/{sessionId}/messages")
     public Result<List<ConsultationMessageResponseDTO>> listMessages(@PathVariable String sessionId){
-        Long dbSessionId = extractDbSessionId(sessionId);
+        Long dbSessionId = psychologicalSupportService.parseSessionId(sessionId);
         checkOwnership(dbSessionId);
         return Result.success(consultationMessageService.listBySession(dbSessionId));
     }
     @GetToken
     @DeleteMapping("/sessions/{sessionId}")
     public Result<Void> deleteSession(@PathVariable String sessionId){
-        Long dbSessionId = extractDbSessionId(sessionId);
+        Long dbSessionId = psychologicalSupportService.parseSessionId(sessionId);
         checkOwnership(dbSessionId);
         consultationSessionService.deleteSession(dbSessionId);
         return  Result.success();
     }
 
     /// 安全校验
-    private Long extractDbSessionId(String sessionId){
-        try {
-            String s = sessionId.startsWith("session_")
-                    ? sessionId.substring("session_".length()) : sessionId;
-            return Long.parseLong(s);
-        }catch (Exception e){
-            throw new BusionessException("会话ID格式错误");
-        }
-    }
     private void checkOwnership(Long sessionId){
         if (AuthUtil.isAdmin()) return;
         ConsultationSession session = consultationSessionService.getById(sessionId);

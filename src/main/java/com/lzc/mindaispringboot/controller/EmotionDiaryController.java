@@ -37,13 +37,13 @@ public class EmotionDiaryController {
     }
     /// 管理端
     @GetToken
-    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.enumClass.UserType).ROLE_ADMIN)")
     @GetMapping("/admin/page")
     public Result<List<EmotionDiaryAdminVO>> adminPage(EmotionDiaryAdminQuery query){
         return Result.success(emotionDiaryService.adminList(query));
     }
     @GetToken
-    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.common.SecurityConstants).ROLE_ADMIN)")
+    @PreAuthorize("hasAuthority(T(com.lzc.mindaispringboot.enumClass.UserType).ROLE_ADMIN)")
     @DeleteMapping("/admin/{id}")
     public Result<Void> admindelete(@PathVariable Long id){
         emotionDiaryService.adminDelete(id);

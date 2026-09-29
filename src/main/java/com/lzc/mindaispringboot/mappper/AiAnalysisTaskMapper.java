@@ -25,7 +25,7 @@ public interface AiAnalysisTaskMapper extends BaseMapper<AiAnalysisTask> {
     int markProcessing(@Param("id") Long id);
 
     @Update("update ai_analysis_task set retry_count = retry_count + 1, " +
-            "status = if(retry_count + 1 < max_retry_count,'PENDING','FAILED')," +
+            "status = if(retry_count <= max_retry_count,'PENDING','FAILED')," +
             "error_message = #{msg},updated_at = NOW() " +
             "where id = #{id}")
     int retryOrFail(@Param("id") Long id,@Param("msg") String msg);

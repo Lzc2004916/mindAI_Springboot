@@ -103,10 +103,21 @@ public class PsychologicalSupportService {
                     })
                     .doOnError(e -> log.error("AI 流式对话异常 sessionId={}", sessionId, e));
     }
+    /// 去掉前缀 session_001 > 001
     private Long extractSessionId(String sessionId){
-        if (sessionId == null || !sessionId.startsWith("session_")) return null;
-        return Long.parseLong(sessionId.replace("session_",""));
+        try {
+            String s = sessionId != null && sessionId.startsWith("session_") ? sessionId.substring("session_".length()) : sessionId;
+            return Long.parseLong(s);
+        }catch (Exception e){
+            return null;
+        }
     }
+    public Long parseSessionId(String sessionId){
+        Long id = extractSessionId(sessionId);
+        if (id == null) {throw new BusionessException("会话ID格式错误");}
+        return id;
+    }
+    /// 获取情绪分析（情绪花园）
     public StructOutPut.EmotionAnalysis getEmotionAnalysis(String sessionId,Long userId,boolean isAdmin){
         Long dbsession = extractSessionId(sessionId);
         if (dbsession == null) throw new BusionessException("会话Id格式错误");
