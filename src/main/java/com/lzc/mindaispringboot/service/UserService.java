@@ -148,7 +148,7 @@ public class UserService {
         if (user == null) return;
         int failCount = user.getLoginFailCount() == null ? 1 : user.getLoginFailCount() + 1;
         user.setLoginFailCount(failCount);
-        user.setLockedUntil(failCount >= 5 ? LocalDateTime.now().plusMinutes(30) : null);
+        user.setLockedUntil(failCount >= 5 ? LocalDateTime.now().plusMinutes(5) : null);
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.updateById(user);
     }

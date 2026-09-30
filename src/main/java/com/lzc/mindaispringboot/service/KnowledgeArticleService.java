@@ -19,6 +19,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
@@ -100,23 +101,37 @@ public class KnowledgeArticleService {
                 .set(KnowledgeArticle :: getUpdatedAt,LocalDateTime.now())
         );
     }
-    public KnowledgeArticle detail(String id, boolean skipPublishFilter) {
-        KnowledgeArticle knowledgeArticle = knowledgeArticleMapper.selectById(id);
-        if (knowledgeArticle == null) {
+    public KnowledgeArticle detail(String id, boolean skipPublishFilter,Long userId) {
+        KnowledgeArticle Article_ID = knowledgeArticleMapper.selectById(id);
+        if (Article_ID == null) {
             throw new BusionessException("文章不存在");
         }
-        if (!skipPublishFilter && (knowledgeArticle.getStatus() == null || knowledgeArticle.getStatus() != 1)) {
+        if (Article_ID.getStatus() == null || Article_ID.getStatus() != 1) {
             throw new BusionessException("文章未发布");
         }
         if (!skipPublishFilter){
-            knowledgeArticleMapper.update(null, new LambdaUpdateWrapper<KnowledgeArticle>()
-                    .eq(KnowledgeArticle::getId, id)
-                    .setSql("read_count = read_count + 1")
-            );
-            knowledgeArticle.setReadCount(
-                    knowledgeArticle.getReadCount() == null ? 1 : knowledgeArticle.getReadCount() + 1);
+            /// 转字符串
+            String userIdStr = String.valueOf(userId);
+            ///文章对象里取出上次记录的值
+            String visitedUsers = Article_ID.getVisitedUsers();
+            boolean alreadyVisited = visitedUsers != null
+                    && Arrays.asList(visitedUsers.split(",")).contains(userIdStr);
+            if (!alreadyVisited){
+                //添加浏览量
+                knowledgeArticleMapper.update(null,
+                        new LambdaUpdateWrapper<KnowledgeArticle>().eq(KnowledgeArticle::getId, id).setSql("read_count = read_count + 1")
+                );
+                Article_ID.setReadCount(Article_ID.getReadCount() == null ? 1 : Article_ID.getReadCount() + 1);
+                String newVisitedUsers = visitedUsers == null
+                        ? userIdStr : visitedUsers + "," + userIdStr;
+                //更新用户访问的userid
+                knowledgeArticleMapper.update(null,
+                        new LambdaUpdateWrapper<KnowledgeArticle>()
+                        .eq(KnowledgeArticle::getId, id)
+                        .set(KnowledgeArticle::getVisitedUsers, newVisitedUsers));
+            }
         }
-        return knowledgeArticle;
+        return Article_ID;
     }
 
     public void delete(String id) {

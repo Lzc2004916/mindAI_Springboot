@@ -16,14 +16,6 @@ public class JwtConfig {
     private String header;
     private String tokenPrefix;
 
-    /**
-     * 启动自检：密钥缺失或过弱 → 直接拒绝启动。
-     *
-     * 为什么必须有这一段：application.yml 原先写的是 ${JWT_SECRET:某个默认值}，而本机从未设置过
-     * JWT_SECRET，于是应用一直用「仓库里人人可见」的默认密钥在签名 —— 任何拿到源码的人都能离线
-     * 伪造一个 roleType=2 的 token 直接拿到管理员权限（安全审查 S-01，已实测复现）。
-     * 现在把这种情况变成「启动即失败」，它就再也不可能静默发生。
-     */
     @PostConstruct
     void validateSecret() {
         if (secret == null || secret.isBlank()) {

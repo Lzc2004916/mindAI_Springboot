@@ -38,7 +38,7 @@ public class AnalysisTaskScheduler {
                     analysisTaskService.markCompleted(task.getId());
                     continue;
                 }
-                emotionDiaryAnalysisService.analyzeEmotionDiary(diary.getId(),true);
+                emotionDiaryAnalysisService.analyzeEmotionDiary(diary.getId());
                 analysisTaskService.markCompleted(task.getId());
             }catch (Exception e){
                 // 不往外抛：一条失败不能连累这一批剩下的任务

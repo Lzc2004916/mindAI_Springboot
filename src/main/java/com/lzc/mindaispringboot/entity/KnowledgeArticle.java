@@ -52,7 +52,9 @@ public class KnowledgeArticle {
     /** 阅读次数（每被查看一次累加） */
     @TableField("read_count")
     private Integer readCount;
-
+    /// 记录访问日记的用户
+    @TableField("visited_users")
+    private String  visitedUsers;
     /** 状态；一般 0=草稿，1=已发布（具体取值以项目约定为准） */
     private Integer status;
 

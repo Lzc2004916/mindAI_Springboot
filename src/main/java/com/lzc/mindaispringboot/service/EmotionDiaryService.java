@@ -57,6 +57,8 @@ public class EmotionDiaryService {
             emotionDiary.setSleepQuality(emotionDiarySaveDTO.getSleepQuality());
             emotionDiary.setStressLevel(emotionDiarySaveDTO.getStressLevel());
             emotionDiary.setUpdatedAt(now);
+            emotionDiary.setAiAnalysisUpdatedAt(null);
+            emotionDiary.setAiEmotionAnalysis(null);
             emotionDiaryMapper.updateById(emotionDiary);
         }
         try {

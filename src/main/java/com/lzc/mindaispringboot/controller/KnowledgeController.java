@@ -66,7 +66,8 @@ public class KnowledgeController {
     @GetToken
     @GetMapping("/article/{id}")
     public Result<KnowledgeArticle> articleDetail(@PathVariable String id){
-        return Result.success(knowledgeArticleService.detail(id,AuthUtil.isAdmin()));
+        Long userId = Token_Aspect.getUserId();
+        return Result.success(knowledgeArticleService.detail(id,AuthUtil.isAdmin(),userId));
     }
     //删除文章
     @GetToken
