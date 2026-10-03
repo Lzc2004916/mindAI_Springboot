@@ -26,6 +26,8 @@ public class EmotionDiaryController {
         Long userId = Token_Aspect.getUserId();
         return Result.success(emotionDiaryService.saveOrUpdate(userId, emotionDiarySaveDTO));
     }
+    @GetToken
+    @DeleteMapping
     public Result<String> delete(Long diaryId){
         Long userId = Token_Aspect.getUserId();
         emotionDiaryService.deleteDiary(diaryId,userId);
