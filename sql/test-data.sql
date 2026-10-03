@@ -89,57 +89,60 @@ VALUES
   (6, 0, '睡眠健康',     'sleep_health',      '改善睡眠质量、重建作息节律',     3, 1, DATE_SUB(NOW(), INTERVAL 46 DAY), NOW()),
   (7, 0, '停用分类测试', 'deprecated_test',   '状态为禁用，分类接口不应返回它', 9, 0, DATE_SUB(NOW(), INTERVAL 45 DAY), NOW());
 
+-- 确保 knowledge_article 表有 visited_users 列（用于记录访问过该文章的用户 ID，防止同一用户重复增加阅读量）
+ALTER TABLE knowledge_article ADD COLUMN IF NOT EXISTS visited_users VARCHAR(2000) DEFAULT NULL COMMENT '记录访问过该文章的用户ID，逗号分隔';
+
 -- ---------- 3. 知识文章 ------------------------------------------------------
 -- id 以 ...009 结尾的那篇 status=0 是草稿：管理员能看到，普通用户应看不到
 --   → 用于验证 KnowledgeArticleService 的 skipPublishFilter
 -- author_id 分别是 1(admin) / 2(zhangsan)，用于验证作者联表
 INSERT INTO knowledge_article
-  (id, category_id, title, summary, content, cover_image, tags, author_id, read_count, status, published_at, created_at, updated_at)
+  (id, category_id, title, summary, content, cover_image, tags, author_id, read_count, visited_users, status, published_at, created_at, updated_at)
 VALUES
   ('a1000000-0000-4000-8000-000000000001', 2, '焦虑发作时，身体到底发生了什么',
    '心跳加快、手心出汗、呼吸变浅——这些不是「你太脆弱」，而是身体的应激反应。',
    '焦虑发作时，交感神经被激活，肾上腺素和皮质醇被释放出来。这套机制在远古时代用来应对猛兽，现在则被「明天要交的报告」触发。理解它，是缓解它的第一步：你感受到的是真实的生理变化，不是想象出来的。',
-   NULL, '焦虑,躯体化,科普', 1, 128, 1, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
+   NULL, '焦虑,躯体化,科普', 1, 128, NULL, 1, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
 
   ('a1000000-0000-4000-8000-000000000002', 2, '三个可以立刻做的焦虑缓解练习',
    '不需要任何工具，坐在椅子上就能做。',
    '一、4-7-8 呼吸法：吸气 4 秒，屏息 7 秒，呼气 8 秒，重复 4 轮。二、5-4-3-2-1 感官着陆：说出你看到的 5 样东西、摸到的 4 样、听到的 3 种声音、闻到的 2 种气味、尝到的 1 个味道。三、写下最坏结果：把「万一」写下来，通常会发现问题比想象中小。',
-   NULL, '焦虑,自助,练习', 1, 86, 1, DATE_SUB(NOW(), INTERVAL 8 DAY), DATE_SUB(NOW(), INTERVAL 8 DAY), NOW()),
+   NULL, '焦虑,自助,练习', 1, 86, NULL, 1, DATE_SUB(NOW(), INTERVAL 8 DAY), DATE_SUB(NOW(), INTERVAL 8 DAY), NOW()),
 
   ('a1000000-0000-4000-8000-000000000003', 3, '情绪没有好坏，只有信息',
    '把「我不该难过」换成「我为什么难过」。',
    '我们从小被教育「要开心」，于是负面情绪成了需要隐藏的东西。但情绪本身是一种反馈机制：焦虑提示有不确定的风险，愤怒提示边界被侵犯，悲伤提示失去了重要的东西。与其压抑它，不如读一读它在说什么。',
-   NULL, '情绪识别,认知', 1, 64, 1, DATE_SUB(NOW(), INTERVAL 6 DAY), DATE_SUB(NOW(), INTERVAL 6 DAY), NOW()),
+   NULL, '情绪识别,认知', 1, 64, NULL, 1, DATE_SUB(NOW(), INTERVAL 6 DAY), DATE_SUB(NOW(), INTERVAL 6 DAY), NOW()),
 
   ('a1000000-0000-4000-8000-000000000004', 5, '孩子说「我不想上学」，家长的第一句话很关键',
    '先接住情绪，再处理事情。',
    '「你不想上学？你知道不上学的后果吗？」——这句话一出口，对话就结束了。换一种：「听起来学校有什么事让你很难受，能和我说说吗？」先让孩子感觉「说了也不会被骂」，他才会说真话。',
-   NULL, '青春期,亲子,沟通', 1, 210, 1, DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 12 DAY), NOW()),
+   NULL, '青春期,亲子,沟通', 1, 210, NULL, 1, DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 12 DAY), NOW()),
 
   ('a1000000-0000-4000-8000-000000000005', 5, '青春期孩子的沉默，不是对抗',
    '他不是不想理你，是在练习「成为自己」。',
    '青春期大脑的前额叶（负责理性决策）还没发育完全，而情绪中枢（杏仁核）异常活跃。所以这个年龄段的孩子容易情绪化、容易沉默。给他留空间，但让他知道你一直在。',
-   NULL, '青春期,发展心理学', 2, 97, 1, DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY), NOW()),
+   NULL, '青春期,发展心理学', 2, 97, NULL, 1, DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY), NOW()),
 
   ('a1000000-0000-4000-8000-000000000006', 6, '睡前 30 分钟：把大脑交给睡眠',
    '睡不着的时候，越努力越清醒。',
    '睡眠不是「努力」就能做到的。睡前 30 分钟做三件事：调暗灯光、把手机放到床外、写下明天要做的三件事（把大脑的待办清空）。',
-   NULL, '睡眠,作息', 1, 153, 1, DATE_SUB(NOW(), INTERVAL 9 DAY), DATE_SUB(NOW(), INTERVAL 9 DAY), NOW()),
+   NULL, '睡眠,作息', 1, 153, NULL, 1, DATE_SUB(NOW(), INTERVAL 9 DAY), DATE_SUB(NOW(), INTERVAL 9 DAY), NOW()),
 
   ('a1000000-0000-4000-8000-000000000007', 1, '情绪日记怎么写才有用',
    '不是流水账，而是记录「事件—想法—情绪」的链条。',
    '写情绪日记时，试着分成三栏：发生了什么、我当时脑子里想的是什么、我的情绪是什么。有用的不是「今天很烦」，而是「今天被老师点名（事件）→ 我觉得自己很蠢（想法）→ 羞耻 + 焦虑（情绪）」。',
-   NULL, '情绪管理,日记,方法', 2, 45, 1, DATE_SUB(NOW(), INTERVAL 3 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
+   NULL, '情绪管理,日记,方法', 2, 45, NULL, 1, DATE_SUB(NOW(), INTERVAL 3 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
 
   ('a1000000-0000-4000-8000-000000000008', 4, '一次失败的沟通复盘',
    '我越讲道理，孩子越不说话。',
    '记录一次真实的对话失败：我准备了 40 分钟的道理，讲了 3 分钟，孩子回房间关上了门。复盘下来最大的问题是：我全程在输出，没有问过一个「你怎么想」。',
-   NULL, '亲子,复盘', 1, 31, 1, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY), NOW()),
+   NULL, '亲子,复盘', 1, 31, NULL, 1, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY), NOW()),
 
   ('a1000000-0000-4000-8000-000000000009', 1, '【草稿】尚未发布的测试文章',
    '这篇文章 status=0，用于验证：普通用户查不到草稿，管理员能查到。',
    '草稿内容。普通用户调文章列表 / 详情时不应看到这一篇。',
-   NULL, '草稿,测试', 1, 0, 0, NULL, DATE_SUB(NOW(), INTERVAL 1 DAY), NOW());
+   NULL, '草稿,测试', 1, 0, NULL, 0, NULL, DATE_SUB(NOW(), INTERVAL 1 DAY), NOW());
 
 -- ---------- 4. 咨询会话 ------------------------------------------------------
 -- id=1 预置了情绪分析结果，且 last_emotion_msg_count = 6，和它实际的 6 条消息一致

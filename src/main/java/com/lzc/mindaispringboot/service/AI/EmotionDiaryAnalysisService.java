@@ -12,6 +12,7 @@ import org.springframework.ai.chat.client.ChatClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /// 情绪日记的 AI 分析
 @Service
@@ -29,7 +30,9 @@ public class EmotionDiaryAnalysisService {
     public StructOutPut.DiaryEmotionAnalysis analyzeEmotionDiary(Long diaryId) {
         EmotionDiary diary  = emotionDiaryMapper.selectById(diaryId);
         if (diary == null) throw new BusionessException("情绪日记不存在");
-        if (diary.getAiAnalysisUpdatedAt() != null && diary.getAiAnalysisUpdatedAt().isAfter(LocalDateTime.now().minusHours(24))){
+        LocalDateTime lasAnalysis = diary.getAiAnalysisUpdatedAt();
+        if (lasAnalysis != null
+                && lasAnalysis.isAfter(LocalDateTime.now().minusHours(24))){
             StructOutPut.DiaryEmotionAnalysis cached = readCache(diary.getAiEmotionAnalysis());
             if (cached != null) return cached;
         }

@@ -50,6 +50,11 @@ public class EmotionDiaryService {
                     .build();
             emotionDiaryMapper.insert(emotionDiary);
         }else {
+            //防止内容一致
+            if (isSameDiaryContent(emotionDiary,emotionDiarySaveDTO)){
+                log.info("日记内容未变化，跳过更新与AI入队，diaryId={}", emotionDiary.getId());
+                return  emotionDiary;
+            }
             emotionDiary.setMoodScore(emotionDiarySaveDTO.getMoodScore());
             emotionDiary.setDominantEmotion(emotionDiarySaveDTO.getDominantEmotion());
             emotionDiary.setEmotionTriggers(emotionDiarySaveDTO.getEmotionTriggers());
@@ -57,8 +62,6 @@ public class EmotionDiaryService {
             emotionDiary.setSleepQuality(emotionDiarySaveDTO.getSleepQuality());
             emotionDiary.setStressLevel(emotionDiarySaveDTO.getStressLevel());
             emotionDiary.setUpdatedAt(now);
-            emotionDiary.setAiAnalysisUpdatedAt(null);
-            emotionDiary.setAiEmotionAnalysis(null);
             emotionDiaryMapper.updateById(emotionDiary);
         }
         try {
@@ -67,6 +70,19 @@ public class EmotionDiaryService {
             log.warn("AI分析任务入队失败，diaryId={}", emotionDiary.getId(),e);
         }
         return emotionDiary;
+    }
+    private boolean isSameDiaryContent(EmotionDiary existing,EmotionDiarySaveDTO dto){
+        return Objects.equals(existing.getMoodScore(),dto.getMoodScore())
+                && Objects.equals(existing.getSleepQuality(),dto.getSleepQuality())
+                && Objects.equals(existing.getStressLevel(),dto.getStressLevel())
+                && isBlankSam(existing.getDominantEmotion(),   dto.getDominantEmotion())
+                && isBlankSam(existing.getEmotionTriggers(),   dto.getEmotionTriggers())
+                && isBlankSam(existing.getDiaryContent(),  dto.getDiaryContent());
+    }
+    private boolean isBlankSam (String a,String b){
+       String na = StrUtil.isBlank(a) ? null : a;
+       String nb = StrUtil.isBlank(b) ? null : b;
+       return Objects.equals(na,nb);
     }
     /**
      * 用户端：查询"自己的"日记（按日期倒序，可选按月份过滤）

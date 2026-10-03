@@ -38,6 +38,7 @@ public class AnalysisTaskService {
                 .updatedAt(LocalDateTime.now())
                 .build();
         aiAnalysisTaskMapper.insert(task);
+
         return task;
     }
     public boolean markProcessing(Long taskId){
