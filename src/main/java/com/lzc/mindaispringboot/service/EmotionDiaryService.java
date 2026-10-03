@@ -6,6 +6,7 @@ import com.lzc.mindaispringboot.Dto.EmotionDiaryAdminQuery;
 import com.lzc.mindaispringboot.Dto.EmotionDiarySaveDTO;
 import com.lzc.mindaispringboot.entity.EmotionDiary;
 import com.lzc.mindaispringboot.entity.User;
+import com.lzc.mindaispringboot.enumClass.UserStatus;
 import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.mappper.EmotionDiaryMapper;
 import com.lzc.mindaispringboot.mappper.UserMapper;
@@ -160,5 +161,12 @@ public class EmotionDiaryService {
     public void adminDelete(Long userId){
         if (emotionDiaryMapper.selectById(userId) == null) throw new BusionessException("情绪日志不存在");
         emotionDiaryMapper.deleteById(userId);
+    }
+
+    public void deleteDiary(Long diaryId, Long userId) {
+        EmotionDiary emotionDiary = emotionDiaryMapper.selectById(diaryId);
+        if (emotionDiary == null) throw new BusionessException("日记不存在");
+        if (!emotionDiary.getUserId().equals(userId)) throw new BusionessException("无权删除该日记");
+        emotionDiaryMapper.deleteById(diaryId);
     }
 }

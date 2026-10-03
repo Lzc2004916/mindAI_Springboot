@@ -26,6 +26,11 @@ public class EmotionDiaryController {
         Long userId = Token_Aspect.getUserId();
         return Result.success(emotionDiaryService.saveOrUpdate(userId, emotionDiarySaveDTO));
     }
+    public Result<String> delete(Long diaryId){
+        Long userId = Token_Aspect.getUserId();
+        emotionDiaryService.deleteDiary(diaryId,userId);
+        return Result.success("删除成功");
+    }
     /**
      * 用户端：查看自己的日记（前端"我的情绪花园 / 我的日记"页用）
      * 可选按月份过滤，如 ?month=2026-09
