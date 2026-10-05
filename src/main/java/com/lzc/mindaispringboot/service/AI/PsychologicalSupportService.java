@@ -35,6 +35,8 @@ public class PsychologicalSupportService {
     private ConsultationMessageService consultationMessageService;
     @Resource
     private ObjectMapper objectMapper;
+    @Resource
+    private CrisisDetectionService crisisDetectionService;
     public StructOutPut.StreamChatSession startSession(Long userId, ConsultationSessionCreateDto consultationSessionCreateDto){
         //创建数据库会话记录
         ConsultationSession session = consultationSessionService.createSession(userId, consultationSessionCreateDto);
@@ -56,7 +58,16 @@ public class PsychologicalSupportService {
      * 心理支持流式对话
      */
     public Flux<String> streamPsychologicalChat(String sessionId, String userMessage) {
-            // 1. 解析会话 ID，获取数据库中的会话主键
+        String crisisResponse = crisisDetectionService.delect(userMessage);
+        if (crisisResponse != null){
+            Long dbSession = extractSessionId(sessionId);
+            if (dbSession != null){
+                consultationMessageService.saveUserMessage(dbSession, userMessage, null);
+                consultationMessageService.saveAiMessage(dbSession, crisisResponse, "system");
+            }
+            return Flux.just(crisisResponse);
+        }
+        // 1. 解析会话 ID，获取数据库中的会话主键
             Long dbSession = extractSessionId(sessionId);
             if (dbSession == null) {
                 return Flux.error(new RuntimeException("会话ID格式错误"));

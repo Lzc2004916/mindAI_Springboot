@@ -46,7 +46,7 @@ public class ConsultationSessionService {
                     .build();
             //标题为空使用默认值
             if (StrUtil.isBlank(SessionCreateDto.getSessionTitle())){
-                session.setSessionTitle("宁渡AI助手 - " + DateUtil.format(LocalDateTime.now(),"MM-dd-yyyy HH:mm:ss"));
+                session.setSessionTitle("聪聆 - " + DateUtil.format(LocalDateTime.now(),"MM-dd-yyyy HH:mm:ss"));
             }
             //插入记录
             consultationSessionMapper.insert(session);

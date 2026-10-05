@@ -1,0 +1,100 @@
+# ============================================================
+# 生产环境配置（application-prod.yml）
+# 所有敏感值通过环境变量注入，不写死在文件里
+# ============================================================
+server:
+  port: ${SERVER_PORT:1236}
+  shutdown: graceful          # 优雅停机：收到 SIGTERM 后等请求处理完
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    accept-count: 100
+    max-connections: 10000
+
+spring:
+  application:
+    name: mindai-backend
+  profiles:
+    active: prod
+  # ---------- 数据源（生产用连接池） ----------
+  datasource:
+    url: ${DB_URL:jdbc:mysql://mysql:3306/mental_health_assistant?useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8mb4}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+  # ---------- Flyway 数据库迁移 ----------
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+  # ---------- AI 配置 ----------
+  ai:
+    openai:
+      chat:
+        options:
+          model: ${AI_MODEL:deepseek-ai/DeepSeek-V3.2}
+          tool-calling:
+            enabled: true
+        completions-path: /v1/chat/completions
+      api-key: ${AI_API_KEY}
+      base-url: ${AI_BASE_URL:https://api.siliconflow.cn}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  # ---------- 优雅停机 ----------
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+# ---------- 文件上传（容器内路径） ----------
+file:
+  upload-dir: /app/files
+  private-dir: /app/files_private
+  access-prefix: /files/**
+
+# ---------- JWT（密钥必须由环境变量注入） ----------
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000
+  refresh-expiration: 604800000
+  header: Authorization
+  token-prefix: "Bearer "
+
+# ---------- Actuator 健康检查与监控 ----------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true       # K8s liveness/readiness 探针
+  health:
+    liveness:
+      enabled: true
+    readiness:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      env: prod
+
+# ---------- 日志级别 ----------
+logging:
+  level:
+    root: INFO
+    com.lzc.mindaispringboot: INFO
+    org.springframework.web: WARN
+    com.baomidou.mybatisplus: WARN

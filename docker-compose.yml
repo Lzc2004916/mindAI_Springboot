@@ -1,0 +1,57 @@
+# ============================================================
+# 生产环境编排：app + mysql
+# 敏感值从 .env 文件读取（不提交到 git）
+# ============================================================
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mindai-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: mental_health_assistant
+      TZ: Asia/Shanghai
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"   # 只绑定本机，不对外暴露
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  app:
+    build: .
+    container_name: mindai-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/mental_health_assistant?useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8mb4
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      AI_API_KEY: ${AI_API_KEY}
+      AI_BASE_URL: ${AI_BASE_URL:-https://api.siliconflow.cn}
+      SERVER_PORT: 1236
+    volumes:
+      - app_files:/app/files
+      - app_files_private:/app/files_private
+      - app_logs:/app/logs
+    ports:
+      - "127.0.0.1:1236:1236"   # 只绑定本机，前面挂 Nginx 反代
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1236/actuator/health/readiness"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  mysql_data:
+  app_files:
+  app_files_private:
+  app_logs:
