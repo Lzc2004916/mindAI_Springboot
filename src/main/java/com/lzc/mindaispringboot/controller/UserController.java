@@ -4,6 +4,7 @@ import com.lzc.mindaispringboot.Aop.GetToken;
 import com.lzc.mindaispringboot.Aop.Token_Aspect;
 import com.lzc.mindaispringboot.Dto.ChangePasswordRequest;
 import com.lzc.mindaispringboot.Dto.UserLoginCommandDTO;
+import com.lzc.mindaispringboot.Dto.UserProfileUpdateDTO;
 import com.lzc.mindaispringboot.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.common.Result;
 import com.lzc.mindaispringboot.VO.UserLoginResponseDTO;
@@ -38,6 +39,7 @@ public class UserController {
         UserLoginResponseDTO.UserDetailResponseDTO result = userService.getUserById(userId);
         return Result.success(result);
     }
+    //更改密码
     @GetToken
     @PostMapping("/password")
     public Result<String> Changes(@Valid @RequestBody ChangePasswordRequest changesPasswordUsername){
@@ -59,5 +61,11 @@ public class UserController {
     @PostMapping("/renew")
     public Result<String> renew(){
         return Result.success(userService.renewToken(Token_Aspect.getUserId()));
+    }
+    @GetToken
+    @PutMapping("/profile")
+    public Result<UserLoginResponseDTO.UserDetailResponseDTO> updateProfile(@Valid @RequestBody UserProfileUpdateDTO dto){
+        Long userId = Token_Aspect.getUserId();
+        return Result.success(userService.updateProfile(userId,dto));
     }
 }

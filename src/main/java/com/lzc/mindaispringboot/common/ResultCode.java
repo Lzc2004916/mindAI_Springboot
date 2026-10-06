@@ -32,7 +32,8 @@ public enum ResultCode {
     TOKEN_BLOCKED("A0233", "token已加入黑名单"),
     TOKEN_ACCESS_FORBIDDEN("A0231", "token已被禁止访问"),
     AUTHORIZED_ERROR("A0300", "访问权限异常"),
-    ACCESS_UNAUTHORIZED("A0301", "访问未授权");
+    ACCESS_UNAUTHORIZED("A0301", "访问未授权"),
+    TOO_MANY_REQUESTS("429", "请求过于频繁，请稍后再试");
     private String code;
     private String message;
     ResultCode(String code, String message) {

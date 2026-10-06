@@ -1,8 +1,10 @@
 package com.lzc.mindaispringboot.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzc.mindaispringboot.Dto.ChangePasswordRequest;
 import com.lzc.mindaispringboot.Dto.UserLoginCommandDTO;
+import com.lzc.mindaispringboot.Dto.UserProfileUpdateDTO;
 import com.lzc.mindaispringboot.Dto.UserRegisterCommandDTO;
 import com.lzc.mindaispringboot.common.ResultCode;
 import com.lzc.mindaispringboot.entity.User;
@@ -17,6 +19,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
@@ -151,5 +154,24 @@ public class UserService {
         user.setLockedUntil(failCount >= 5 ? LocalDateTime.now().plusMinutes(5) : null);
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.updateById(user);
+    }
+    public UserLoginResponseDTO.UserDetailResponseDTO updateProfile(Long userId, UserProfileUpdateDTO dto){
+        User user = userMapper.selectById(userId);
+        if (user == null) throw new BusionessException("用户不存在");
+        if (StrUtil.isNotBlank(dto.getNickname())){
+            user.setNickname(dto.getNickname());
+        }
+        if (dto.getAvatar() != null){
+            user.setAvatar(dto.getAvatar());
+        }
+        if (dto.getGender() != null){
+            user.setGender(dto.getGender());
+        }
+        if (dto.getBirthday() != null){
+            user.setBirthday(dto.getBirthday());
+        }
+        user.setUpdatedAt(LocalDateTime.now());
+        userMapper.updateById(user);
+        return  UserConvert.entityToDetailResponse(user);
     }
 }

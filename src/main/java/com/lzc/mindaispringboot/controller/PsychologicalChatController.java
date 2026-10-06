@@ -2,6 +2,7 @@ package com.lzc.mindaispringboot.controller;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lzc.mindaispringboot.Aop.RateLimit;
 import com.lzc.mindaispringboot.service.AI.PsychologicalSupportService;
 import com.lzc.mindaispringboot.service.AI.StructOutPut;
 import com.lzc.mindaispringboot.Aop.GetToken;
@@ -49,6 +50,7 @@ public class PsychologicalChatController {
         StructOutPut.StreamChatSession startSession = psychologicalSupportService.startSession(userId, consultationSessionCreateDto);
         return Result.success(startSession);
     }
+    @RateLimit(qps = 5)
     @GetToken
     @PostMapping(value = "/stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> streamChat(@Valid @RequestBody ConsultaionStreamDTO consultaionStreamDTO){

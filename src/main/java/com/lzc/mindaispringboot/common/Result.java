@@ -30,6 +30,9 @@ public class Result<T> implements Serializable {
         result.setData(data);
         return result;
     }
+    public static <T> Result<T> error(String msg) {
+        return error(ResultCode.ERROR.getCode(), msg, null);
+    }
     public static <T> Result<T> error() {
         return error(ResultCode.ERROR.getCode(),ResultCode.ERROR.getMessage(),null);
     }

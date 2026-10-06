@@ -3,16 +3,13 @@ package com.lzc.mindaispringboot.Aop;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lzc.mindaispringboot.exception.BusionessException;
 import com.lzc.mindaispringboot.util.JwtTokenUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+
 
 @Aspect
 @Component
@@ -44,12 +41,5 @@ public class Token_Aspect {
         // ② 判空 + 类型检查：principal 必须是 Long 类型（即 userId）
         if (auth == null || !(auth.getPrincipal() instanceof Long id)) return null;
         return id;
-    }
-    private HttpServletRequest getCurrentRequest(){
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes == null) {
-            throw new IllegalStateException("当前线程没有绑定上下文");
-        }
-        return attributes.getRequest();
     }
 }

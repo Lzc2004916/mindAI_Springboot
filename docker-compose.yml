@@ -13,6 +13,7 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro   # 首次启动自动建表
     ports:
       - "127.0.0.1:3306:3306"   # 只绑定本机，不对外暴露
     healthcheck:
