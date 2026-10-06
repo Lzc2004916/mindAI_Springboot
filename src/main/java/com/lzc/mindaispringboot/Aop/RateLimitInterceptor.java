@@ -42,12 +42,12 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         if (rateLimit == null) return true;
         long now = System.currentTimeMillis();
         String key = resolveKey(request);
-        Window w = counters.compute(key,(k,old)->
+        Window window = counters.compute(key,(k,old)->
                         (old == null || now - old.startAt() > WINDOW_MS
                                 ? new Window(now, 1)
                                 : new Window(old.startAt(),old.count() + 1))
                 );
-        if (w.count > rateLimit.qps()){
+        if (window.count > rateLimit.qps()){
             response.setStatus(429);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(

@@ -49,7 +49,12 @@ public class GlobarExceptionHandler {
     }
     /// 兜底：任何没被上面几个 handler 接住的异常都走这里
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Result<Void>> handleException(Exception e){
+    public ResponseEntity<Result<Void>> handleException(Exception e) throws Exception {
+        // 框架级错误响应（404/405/415 等实现了 ErrorResponse 的异常）不要吞，
+        // 直接 rethrow 让 Spring 原生渲染标准错误响应
+        if (e instanceof org.springframework.web.ErrorResponse) {
+            throw e;
+        }
         log.error("未处理异常：{}",e.getMessage(),e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Result.error(ResultCode.SYSTEM_ERROR.getCode(),ResultCode.SYSTEM_ERROR.getMessage(),null));

@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS `ai_analysis_task` (
     retry_count INT NOT NULL DEFAULT 0,
     max_retry_count INT NOT NULL DEFAULT 3,
     error_message VARCHAR(1000) DEFAULT NULL,
+    started_at DATETIME DEFAULT NULL COMMENT '任务开始执行时间',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     completed_at DATETIME DEFAULT NULL,
@@ -75,6 +76,9 @@ CREATE TABLE IF NOT EXISTS `consultation_session` (
     message_count INT NOT NULL DEFAULT 0,
     last_message_content TEXT,
     status VARCHAR(20) DEFAULT 'ACTIVE',
+    last_emotion_analysis TEXT DEFAULT NULL COMMENT '最后一次情绪分析结果(JSON)',
+    last_emotion_updated_at DATETIME DEFAULT NULL COMMENT '最后一次情绪分析更新时间',
+    last_emotion_msg_count INT DEFAULT 0 COMMENT '上次分析时的消息条数',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY idx_user (user_id, started_at)
@@ -95,10 +99,14 @@ CREATE TABLE IF NOT EXISTS `consultation_message` (
 CREATE TABLE IF NOT EXISTS `knowledge_category` (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
+    category_name VARCHAR(50) DEFAULT NULL COMMENT '分类名称',
+    category_code VARCHAR(50) DEFAULT NULL COMMENT '分类编码（唯一标识）',
+    description VARCHAR(255) DEFAULT NULL COMMENT '分类描述',
     parent_id BIGINT UNSIGNED DEFAULT 0,
     sort_order INT DEFAULT 0,
     status TINYINT DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
