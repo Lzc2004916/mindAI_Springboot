@@ -20,7 +20,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private final Map<String, Window> counters = new ConcurrentHashMap<>();
     private record Window(long startAt,int count){}
     private static final long WINDOW_MS = 60_000L;
-    // 每分钟清一次过期 key，避免 map 无限增长
+    // 每分钟清一次过期 key
     @Scheduled(fixedRate = WINDOW_MS)
     public void evictExpired(){
         long now = System.currentTimeMillis();
@@ -31,7 +31,6 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         if (auth != null && auth.getPrincipal() instanceof Long userId){
             return "u:" + userId + ":" + request.getRequestURI();
         }
-        // ② 兜底用 IP，避免"取不到用户就所有人共用一个桶"
         return "ip:" + request.getRemoteAddr() + ":" + request.getRequestURI();
     }
     @Override

@@ -29,4 +29,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(rateLimitInterceptor)
                 .addPathPatterns("/api/psychological-chat/**");// 只限流 AI 对话接口
     }
-}
+
+    }
