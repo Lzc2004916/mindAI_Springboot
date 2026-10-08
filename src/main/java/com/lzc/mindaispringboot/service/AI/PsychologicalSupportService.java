@@ -123,11 +123,6 @@ public class PsychologicalSupportService {
             return null;
         }
     }
-    public Long parseSessionId(String sessionId){
-        Long id = extractSessionId(sessionId);
-        if (id == null) {throw new BusionessException("会话ID格式错误");}
-        return id;
-    }
     /// 获取情绪分析（情绪花园）
     public StructOutPut.EmotionAnalysis getEmotionAnalysis(String sessionId,Long userId){
         Long dbsession = extractSessionId(sessionId);

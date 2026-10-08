@@ -61,7 +61,7 @@ public class PsychologicalChatController {
                 return errorStream(ResultCode.UNAUTHORIZED.getCode(), "用户未登录");
             }
             // 会话归属校验：非管理员只能往自己的会话里发消息（防越权写入）
-            Long dbSessionId = psychologicalSupportService.parseSessionId(consultaionStreamDTO.getSessionId());
+            Long dbSessionId = parseSessionId(consultaionStreamDTO.getSessionId());
             checkOwnership(dbSessionId);
             //开始流式对话
             return psychologicalSupportService.streamPsychologicalChat(consultaionStreamDTO.getSessionId(),consultaionStreamDTO.getUserMessage())
@@ -120,19 +120,27 @@ public class PsychologicalChatController {
     @GetToken
     @GetMapping("/sessions/{sessionId}/messages")
     public Result<List<ConsultationMessageResponseDTO>> listMessages(@PathVariable String sessionId){
-        Long dbSessionId = psychologicalSupportService.parseSessionId(sessionId);
+        Long dbSessionId = parseSessionId(sessionId);
         checkOwnership(dbSessionId);
         return Result.success(consultationMessageService.listBySession(dbSessionId));
     }
     @GetToken
     @DeleteMapping("/sessions/{sessionId}")
     public Result<Void> deleteSession(@PathVariable String sessionId){
-        Long dbSessionId = psychologicalSupportService.parseSessionId(sessionId);
+        Long dbSessionId = parseSessionId(sessionId);
         checkOwnership(dbSessionId);
         consultationSessionService.deleteSession(dbSessionId);
         return  Result.success();
     }
-
+    private Long parseSessionId(String sessionId){
+        if (sessionId == null) throw new BusionessException("会话ID不能为空");
+        String s = sessionId.startsWith("session_") ? sessionId.substring("session_".length()) : sessionId;
+        try {
+            return Long.parseLong(s);
+        }catch (NumberFormatException e){
+            throw new BusionessException("会话ID格式错误");
+        }
+    }
     /// 安全校验
     private void checkOwnership(Long sessionId){
         if (AuthUtil.isAdmin()) return;
@@ -140,5 +148,4 @@ public class PsychologicalChatController {
         if (session == null) throw new BusionessException("会话不存在");
         if (!session.getUserId().equals(Token_Aspect.getUserId())) throw new BusionessException("无权操作该会话");
     }
-
 }

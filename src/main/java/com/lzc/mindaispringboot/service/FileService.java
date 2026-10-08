@@ -24,8 +24,6 @@ import java.util.UUID;
 
 @Service
 public class FileService {
-    /** 单文件上限 10MB（跟 yml 里保持一致，双保险） */
-    private static final long MAX_SIZE = 10 * 1024 * 1024L;
 
     /** 扩展名白名单：只允许图片和常见文档，禁止上传 exe/sh 等可执行文件 */
     private static final List<String> ALLOWED_EXT = List.of(
@@ -46,7 +44,8 @@ public class FileService {
         if (file == null || file.isEmpty()){
             throw new BusionessException("请选择要上传的文件");
         }
-        if (file.getSize() > MAX_SIZE){
+        /** 单文件上限 10MB（跟 yml 里保持一致，双保险） */
+        if (file.getSize() > 10 * 1024 * 1024L){
             throw new BusionessException("文件大小不能超过 10MB");
         }
         //文件名
@@ -63,6 +62,7 @@ public class FileService {
             String relative = datePath + "/" + fileName;
             Path target = Paths.get(uploadDir).resolve(relative);
             Files.createDirectories(target.getParent());
+            //获取文件二进制内容流存放到磁盘当中
             try(var in = file.getInputStream()) {
                 //存进磁盘中
                 Files.copy(in,target, StandardCopyOption.REPLACE_EXISTING);
@@ -107,6 +107,7 @@ public class FileService {
             default -> "OTHER";
         };
     }
+    //取出后缀
     private String getExt(String fileName){
         if (StrUtil.isBlank(fileName)) return "";
         int idx = fileName.lastIndexOf(".");
